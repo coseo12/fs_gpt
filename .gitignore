@@ -1,1 +1,110 @@
-README.md
+
+# 운영 체제별 파일들
+.DS_Store
+Thumbs.db
+
+# 로그 파일들
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 디렉토리별 파일들
+node_modules/
+dist/
+build/
+temp/
+tmp/
+
+# 환경 설정 파일들
+.env
+.env.local
+.env.*.local
+
+# 에디터/IDE별 파일들
+.vscode/
+.idea/
+*.swp
+
+# 바이너리 파일들
+*.exe
+*.dll
+*.so
+*.dylib
+
+# 임시 파일들
+*.tmp
+*.temp
+*.bak
+*.old
+
+# 압축 파일들
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# 이미지 파일들
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+
+# 데이터베이스 파일들
+*.sql
+*.sqlite
+
+# 특정 언어 및 프레임워크 파일들
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.pyc
+*.pyd
+*.pyo
+*.pyd
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+
+# Ruby
+*.gem
+*.rbc
+*.rvmrc
+
+# Go
+*.exe
+*.test
+*.out
+
+# 기타 빌드 파일들
+*.obj
+*.o
+*.a
+*.lib
+*.so
+*.dll
+*.class
+*.jar
+*.war
+*.pyc
+*.pyo
+*.pyd
+
+# 운영체제별 숨김 파일들
+.DS_Store
+Desktop.ini
+Thumbs.db
