@@ -4,9 +4,9 @@
 
 ## Open AI를 위한 요구사항
 
-- [o] Plus 유료 결제
-- [o] API Key (유료)
-- [o] 반드시 사용 한계 설정 필요 ( 요금 폭탄 주의 )
+- [x] Plus 유료 결제
+- [x] API Key (유료)
+- [x] 반드시 사용 한계 설정 필요 ( 요금 폭탄 주의 )
 
 # 1. 기본 설정
 
@@ -76,7 +76,16 @@ requirements.txt 프로젝트에서 필요한 패키지들의 목록과 해당 �
 pip install -r requirements.txt
 ```
 
-## 1-2. Jupyter notebook
+### 환경변수 파일 설정
+
+```json
+// OPEN AI API KEY
+OPENAI_API_KEY="sk-...n"
+```
+
+## 1-2. Jupyter Notebook
+
+### 정의
 
 Jupyter Notebook은 대화형 컴퓨팅 환경으로, 특히 데이터 과학, 머신러닝, 데이터 분석, 학술 연구 및 교육에서 널리 사용됩니다. Jupyter Notebook의 주요 용도는 다음과 같습니다.
 
@@ -94,6 +103,11 @@ Jupyter Notebook은 대화형 컴퓨팅 환경으로, 특히 데이터 과학, �
 - 데이터 시각화 및 대시보드 생성: Jupyter Notebook을 통해 데이터 시각화를 쉽게 수행할 수 있으며, 대시보드를 생성하여 실시간 데이터 모니터링 및 분석을 할 수 있습니다.
 
 - 재현 가능한 연구: 연구 결과를 재현할 수 있는 환경을 제공하여, 연구의 신뢰성을 높입니다. Jupyter Notebook을 사용하면 코드와 결과를 함께 저장하여 언제든지 동일한 결과를 재현할 수 있습니다. Jupyter Notebook은 코드, 텍스트, 시각화를 통합하여 사용자 친화적인 환경을 제공함으로써, 데이터 과학과 관련된 다양한 작업을 효율적으로 수행할 수 있게 합니다.
+
+### Jupyter Notebook 생성
+
+1. notebook.ipynb 파일을 루트에 생성합니다. (파일이름은 자유롭게 설정합니다.)
+2. Select Kernel을 선택하여 현재 파이썬 가상환경으로 접근하도록 경로를 설정합니다.
 
 # 2. 랭체인
 
