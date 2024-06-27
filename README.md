@@ -129,7 +129,7 @@ Jupyter Notebook은 대화형 컴퓨팅 환경으로, 특히 데이터 과학, �
 이 둘은 텍스트를 Predict 할 수 있습니다.
 
 ```py
-from langchain.llms.openai import OpenAI # LLM
+from langchain_openai import OpenAI # LLM
 from langchain.chat_models import ChatOpenAI # Chat model
 
 llm = OpenAI()
@@ -173,27 +173,48 @@ prompt란 LLM 과 의사소통할 수 있는 방법입니다. prompt의 성능�
 모든 웹사이트들이 상황에 맞는 뛰어난 성능의 prompt를 제작하는데 많은 노력을 기울입니다.
 Langchain은 prompt를 공유하기 위한 커뮤니티를 만들고 있습니다. 이를 이용하여 많은 사용자들이 prompt를 공유할 수 있습니다. 많은 유틸리티 들이 prompt를 위해 존재합니다.
 
+간단하게 문자열을 통한 predict를 실행하는 예제를 작성해 보겠습니다.
+
 ```py
 from langchain.chat_models import ChatOpenAI
 # PromptTemplate - 문자열을 이용한 template 생성
 # ChatPromptTemplate - message를 이용하여 template 생성
 from langchain.prompts import PromptTemplate, ChatPromptTemplate
-# HumanMessage - 인간이 작성하는 메시지
-# AIMessage - AI에 의해서 보내지는 메시지
-# SystemMessage - LLM에 설정들을 제공하기 위한 Message
-from langchain.schema import HumanMessage, AIMessage, SystemMessage
+
+chat = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+)
+
+template = PromptTemplate.from_template("What is the distance between {country_a} and {country_b}")
+
+prompt = template.format(country_a="Mexico", country_b="Thailand")
+
+chat.predict(prompt)
+```
+
+이번에는 메시지를 통한 invoke를 실행하는 예제를 작성해 보겠습니다.
+
+```py
+from langchain.chat_models import ChatOpenAI
+# PromptTemplate - 문자열을 이용한 template 생성
+# ChatPromptTemplate - message를 이용하여 template 생성
+from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate, AIMessagePromptTemplate
 
 chat = ChatOpenAI(
     temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
 )
 
 messages = [
-    SystemMessage(content="You are a geography expert. And you only reply in {language}."),
-    AIMessage(content="Ciao, mi chiamo {name}!"),
-    HumanMessage(content="What is the distance between the {country_a} and {country_b}. Also, what is your name?"),
+    SystemMessagePromptTemplate.from_template("You are a geography expert. And you only reply in {language}."),
+    AIMessagePromptTemplate.from_template("Ciao, mi chiamo {name}!"),
+    HumanMessagePromptTemplate.from_template("What is the distance between the {country_a} and {country_b}. Also, what is your name?")
 ]
 
-chat.invoke(messages)
+template = ChatPromptTemplate.from_messages(messages)
+
+prompt = template.format_messages(language="Italian", name="Paolo", country_a="Mexico", country_b="Thailand")
+
+chat.invoke(prompt)
 ```
 
 ## 2-4. OutputParser and LCEL
