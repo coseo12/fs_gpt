@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(5%)
+- 진행 중...(6%)
 
 ## Open AI를 위한 요구사항
 
@@ -12,8 +12,8 @@
 
 VSCode 기준 필수 플러그인
 
-- Python language support
-- Jupyter notebook support
+[Python language support](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+[Jupyter notebook support](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter)
 
 ## 1-1. 가상환경 (Python 3.12.4)
 
@@ -116,38 +116,66 @@ Jupyter Notebook은 대화형 컴퓨팅 환경으로, 특히 데이터 과학, �
 
 # 2. 랭체인
 
-## 2-1. LLM 및 채팅모델
+[랭체인 공식 문서](https://python.langchain.com/v0.1/docs/get_started/quickstart/)
+[OpenAI 공식 문서](https://platform.openai.com/docs/overview)
 
-기본적으로 여러가지 모델들로 작업하기 좋은 인터페이스를 가지고 있으며 여러가지 모델들로 작업하기에 좋은 인터페이스를 가지고 있습니다.
-각 모델들은 서로 다른 기업에서 제공되고 또한 서로 다른 차이점을 지니고 있지만 랭체인을 사용하면 모든 모델에 호환되는 계층을 사용할 수 있습니다.
+## 2-1. LLM and Chat Models
+
+기본적으로 여러가지 모델들로 작업하기 좋은 인터페이스를 가지고 있으며 각 모델들은 서로 다른 기업에서 제공되고 또한 서로 다른 차이점을 지니고 있지만 랭체인을 사용하면 모든 모델에 호환되는 계층을 사용할 수 있습니다.
 
 [Open AI Models](https://platform.openai.com/docs/models)
 
 ### LLM 호출
 
+간단하게 LLM 과 Chat Models 를 호출해보겠습니다.
+이 둘은 텍스트를 Predict 할 수 있습니다.
+
 ```py
-# from langchain.llms.openai import OpenAI
-from langchain.chat_models import ChatOpenAI
+from langchain.llms.openai import OpenAI # LLM
+from langchain.chat_models import ChatOpenAI # Chat model
 
 llm = OpenAI()
 chat = ChatOpenAI()
 
-# a = llm.predict("How many planets are in the solar system?")
+a = llm.predict("How many planets are in the solar system?")
 b = chat.predict("How many planets are in the solar system?")
 
-# a, b
-b
+a, b
+```
+
+## 2-2. Predict Messages
+
+Chat model은 대화에 최적화 되어 있는데 질문을 받을 수 있을 뿐만 아니라 대화를 할 수 있습니다.
+즉 메시지의 묶음이라는 의미이며, 상대로서 대화의 맥락에 맞게 대답할 수 있습니다.
+Message들을 Predict 해보겠습니다.
+
+```py
+from langchain.chat_models import ChatOpenAI
+# HumanMessage - 인간이 작성하는 메시지
+# AIMessage - AI에 의해서 보내지는 메시지
+# SystemMessage - LLM에 설정들을 제공하기 위한 Message
+from langchain.schema import HumanMessage, AIMessage, SystemMessage
+
+chat = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+)
+
+messages = [
+    SystemMessage(content="You are a geography expert. And you only reply in Italian."),
+    AIMessage(content="Ciao, mi chiamo Paolo!"),
+    HumanMessage(content="What is the distance between the Mexico and Thailand. Also, what is your name?"),
+]
+
+chat.invoke(messages)
 ```
 
 ---
 
-## 2-2. 메시지 예측
+## 2-3. Prompt Templates
 
-## 2-3. 프롬프트 템플릿
+## 2-4. OutputParser and LCEL
 
-## 2-4. OutputParser 및 LCEL
-
-## 2-5. 체인 연결
+## 2-5. Chaining Chains
 
 # 3. 모델
 
