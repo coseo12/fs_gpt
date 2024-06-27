@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(6%)
+- 진행 중...(7%)
 
 ## Open AI를 위한 요구사항
 
@@ -125,8 +125,6 @@ Jupyter Notebook은 대화형 컴퓨팅 환경으로, 특히 데이터 과학, �
 
 [Open AI Models](https://platform.openai.com/docs/models)
 
-### LLM 호출
-
 간단하게 LLM 과 Chat Models 를 호출해보겠습니다.
 이 둘은 텍스트를 Predict 할 수 있습니다.
 
@@ -143,11 +141,11 @@ b = chat.predict("How many planets are in the solar system?")
 a, b
 ```
 
-## 2-2. Predict Messages
+## 2-2. invoke
 
 Chat model은 대화에 최적화 되어 있는데 질문을 받을 수 있을 뿐만 아니라 대화를 할 수 있습니다.
 즉 메시지의 묶음이라는 의미이며, 상대로서 대화의 맥락에 맞게 대답할 수 있습니다.
-Message들을 Predict 해보겠습니다.
+Message들을 invoke 해보겠습니다.
 
 ```py
 from langchain.chat_models import ChatOpenAI
@@ -169,9 +167,34 @@ messages = [
 chat.invoke(messages)
 ```
 
----
-
 ## 2-3. Prompt Templates
+
+prompt란 LLM 과 의사소통할 수 있는 방법입니다. prompt의 성능이 좋다면 LLM의 답변도 좋아집니다.
+모든 웹사이트들이 상황에 맞는 뛰어난 성능의 prompt를 제작하는데 많은 노력을 기울입니다.
+Langchain은 prompt를 공유하기 위한 커뮤니티를 만들고 있습니다. 이를 이용하여 많은 사용자들이 prompt를 공유할 수 있습니다. 많은 유틸리티 들이 prompt를 위해 존재합니다.
+
+```py
+from langchain.chat_models import ChatOpenAI
+# PromptTemplate - 문자열을 이용한 template 생성
+# ChatPromptTemplate - message를 이용하여 template 생성
+from langchain.prompts import PromptTemplate, ChatPromptTemplate
+# HumanMessage - 인간이 작성하는 메시지
+# AIMessage - AI에 의해서 보내지는 메시지
+# SystemMessage - LLM에 설정들을 제공하기 위한 Message
+from langchain.schema import HumanMessage, AIMessage, SystemMessage
+
+chat = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+)
+
+messages = [
+    SystemMessage(content="You are a geography expert. And you only reply in {language}."),
+    AIMessage(content="Ciao, mi chiamo {name}!"),
+    HumanMessage(content="What is the distance between the {country_a} and {country_b}. Also, what is your name?"),
+]
+
+chat.invoke(messages)
+```
 
 ## 2-4. OutputParser and LCEL
 
