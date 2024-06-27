@@ -10,6 +10,11 @@
 
 # 1. 기본 설정
 
+VSCode 기준 필수 플러그인
+
+- Python language support
+- Jupyter notebook support
+
 ## 1-1. 가상환경 (Python 3.12.4)
 
 ### 정의
@@ -112,6 +117,29 @@ Jupyter Notebook은 대화형 컴퓨팅 환경으로, 특히 데이터 과학, �
 # 2. 랭체인
 
 ## 2-1. LLM 및 채팅모델
+
+기본적으로 여러가지 모델들로 작업하기 좋은 인터페이스를 가지고 있으며 여러가지 모델들로 작업하기에 좋은 인터페이스를 가지고 있습니다.
+각 모델들은 서로 다른 기업에서 제공되고 또한 서로 다른 차이점을 지니고 있지만 랭체인을 사용하면 모든 모델에 호환되는 계층을 사용할 수 있습니다.
+
+[Open AI Models](https://platform.openai.com/docs/models)
+
+### LLM 호출
+
+```py
+# from langchain.llms.openai import OpenAI
+from langchain.chat_models import ChatOpenAI
+
+llm = OpenAI()
+chat = ChatOpenAI()
+
+# a = llm.predict("How many planets are in the solar system?")
+b = chat.predict("How many planets are in the solar system?")
+
+# a, b
+b
+```
+
+---
 
 ## 2-2. 메시지 예측
 
