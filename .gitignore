@@ -45,14 +45,6 @@ tmp/
 *.rar
 *.7z
 
-# 이미지 파일들
-*.png
-*.jpg
-*.jpeg
-*.gif
-*.svg
-*.ico
-
 # 데이터베이스 파일들
 *.sql
 *.sqlite
