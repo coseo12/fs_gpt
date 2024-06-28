@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(8%)
+- 진행 중...(9%)
 
 ## Open AI를 위한 요구사항
 
@@ -276,7 +276,7 @@ messages = [
     HumanMessagePromptTemplate.from_template("{question}")
 ]
 
-# Chaining
+# ✨Chaining✨
 chain = template | chat | CommaOutputParser()
 chain.invoke({
     "max_items":10,
@@ -338,6 +338,7 @@ veg_chef_prompt = ChatPromptTemplate.from_messages(veg_chef_message)
 
 veg_chef_chain = veg_chef_prompt | chat
 
+# ✨RunnableMap✨사용
 final_chain = {"recipe": chef_chain} | veg_chef_chain
 
 final_chain.invoke({
@@ -346,6 +347,12 @@ final_chain.invoke({
 ```
 
 # 3. MODEL IO
+
+Langchain에는 다양한 Model I/O가 존재합니다. 이는 다른 모든 언어 모델들과 인터페이스 할 수 있는 빌딩 블록을 제공합니다.
+
+![Model Image](./images/model.png)
+
+[Components/Modules](https://python.langchain.com/v0.1/docs/modules/)
 
 ## 3-1. FewShotPromptTemplate
 
