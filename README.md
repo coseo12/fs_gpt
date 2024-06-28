@@ -129,8 +129,7 @@ Jupyter Notebook은 대화형 컴퓨팅 환경으로, 특히 데이터 과학, �
 이 둘은 텍스트를 Predict 할 수 있습니다.
 
 ```py
-from langchain_openai import OpenAI # LLM
-from langchain.chat_models import ChatOpenAI # Chat model
+from langchain_openai import OpenAI, ChatOpenAI # LLM, Chat model
 
 llm = OpenAI()
 chat = ChatOpenAI()
@@ -148,7 +147,7 @@ Chat model은 대화에 최적화 되어 있는데 질문을 받을 수 있을 �
 Message들을 invoke 해보겠습니다.
 
 ```py
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 # HumanMessage - 인간이 작성하는 메시지
 # AIMessage - AI에 의해서 보내지는 메시지
 # SystemMessage - LLM에 설정들을 제공하기 위한 Message
@@ -176,7 +175,7 @@ Langchain은 prompt를 공유하기 위한 커뮤니티를 만들고 있습니�
 간단하게 문자열을 통한 predict를 실행하는 예제를 작성해 보겠습니다.
 
 ```py
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 # PromptTemplate - 문자열을 이용한 template 생성
 # ChatPromptTemplate - message를 이용하여 template 생성
 from langchain.prompts import PromptTemplate, ChatPromptTemplate
@@ -195,7 +194,7 @@ chat.predict(prompt)
 이번에는 메시지를 통한 invoke를 실행하는 예제를 작성해 보겠습니다.
 
 ```py
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 # PromptTemplate - 문자열을 이용한 template 생성
 # ChatPromptTemplate - message를 이용하여 template 생성
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate, AIMessagePromptTemplate
@@ -225,7 +224,7 @@ LCEL(langchain expression language)은 복잡할 수도 있는 코드를 간결�
 첫번째로 OutputParser 예제로 간단하게 응답을 list로 변환해보겠습니다.
 
 ```py
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.schema import BaseOutputParser
 # PromptTemplate - 문자열을 이용한 template 생성
 # ChatPromptTemplate - message를 이용하여 template 생성
@@ -256,7 +255,7 @@ p.parse(res.content)
 결과는 단순하지만 실행하는 코드는 너무 복잡합니다. 이것을 단순화하기 위해 Chaining 하도록 변경해 보겠습니다.
 
 ```py
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.schema import BaseOutputParser
 # PromptTemplate - 문자열을 이용한 template 생성
 # ChatPromptTemplate - message를 이용하여 template 생성
@@ -279,7 +278,6 @@ messages = [
 
 # Chaining
 chain = template | chat | CommaOutputParser()
-
 chain.invoke({
     "max_items":10,
     "question":"What are the colors?",
@@ -288,8 +286,63 @@ chain.invoke({
 
 ## 2-5. Chaining Chains
 
-```py
+[Expression Language/interface](https://python.langchain.com/v0.1/docs/expression_language/interface/)
 
+Chaining과 LCEL(langchain expression language)에 대하여 좀 더 깊게 알아보도록 하겠습니다.
+이전 Chaining과 코드를 살펴보겠습니다.
+
+```py
+chain = template | chat | CommaOutputParser()
+chain.invoke({
+    "max_items":10,
+    "question":"What are the colors?",
+})
+```
+
+우리는 현재 prompt와 chat model 그리고 OutputParser를 사용하고 있습니다. 이 외에도 다른 타입들은 위에 공식문서 링크를 참조해주세요(밑에서 다른 타입들도 사용하게 됩니다.)
+
+실행 시 첫번째 template.format_messages 즉 prompt 명령이 실행 됩니다. 이로 인하여 그 값을 Dictionary형태로 전달하고 있습니다. 이로 인하여 Dictionary형태의 매개변수를 전달하고 있습니다. 첫번째 실행의 결과는 prompt value를 받게 됩니다.
+두번째로 chat model로 첫번째 실행결과(prompt value)와 함께 이동합니다. chat model은 prompt value를 매개로 실행되며 그 실행 결과를 String 형태로 받게 됩니다.
+세번째로 OutputParser로 두번째 실행결과(String)와 함께 이동합니다. OutputParser는 우리가 원하는 형태로 문자열을 가공하여 마지막 결과를 출력하게 될 것입니다.
+
+이제 Chain들을 서로 Chaining 하는 예제를 작성해 보겠습니다.
+
+```py
+from langchain_openai import ChatOpenAI
+# PromptTemplate - 문자열을 이용한 template 생성
+# ChatPromptTemplate - message를 이용하여 template 생성
+from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate, AIMessagePromptTemplate
+from langchain.callbacks import StreamingStdOutCallbackHandler
+
+chat = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+    streaming=True, # streaming 옵션을 활성화하여 대화형 모드로 설정
+    callbacks=[StreamingStdOutCallbackHandler()], # 콜백 함수를 설정
+)
+
+chef_message =  [
+    SystemMessagePromptTemplate.from_template("You are a world-class international chef. You create easy to fllow recipies for any type of cuisine with easy to find ingredients."),
+    HumanMessagePromptTemplate.from_template("I want to cook {cuisine} food.")
+]
+
+chef_prompt = ChatPromptTemplate.from_messages(chef_message)
+
+chef_chain = chef_prompt | chat
+
+veg_chef_message =  [
+    SystemMessagePromptTemplate.from_template("You are a vegetarian chef specialized on marking tranditional recipies vegetarian. You find alternatibe ingredients and explain their preparation. You don't redically modify the recipe. If there is no alternative for a food just say you don't know how to replace it."),
+    HumanMessagePromptTemplate.from_template("{recipe}")
+]
+
+veg_chef_prompt = ChatPromptTemplate.from_messages(veg_chef_message)
+
+veg_chef_chain = veg_chef_prompt | chat
+
+final_chain = {"recipe": chef_chain} | veg_chef_chain
+
+final_chain.invoke({
+    "cuisine":"indian",
+})
 ```
 
 # 3. MODEL IO
