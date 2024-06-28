@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(7%)
+- 진행 중...(8%)
 
 ## Open AI를 위한 요구사항
 
@@ -114,7 +114,7 @@ Jupyter Notebook은 대화형 컴퓨팅 환경으로, 특히 데이터 과학, �
 1. notebook.ipynb 파일을 루트에 생성합니다. (파일이름은 자유롭게 설정합니다.)
 2. Select Kernel을 선택하여 현재 파이썬 가상환경으로 접근하도록 경로를 설정합니다.
 
-# 2. 랭체인
+# 2. LANGCHAIN
 
 [랭체인 공식 문서](https://python.langchain.com/v0.1/docs/get_started/quickstart/)
 [OpenAI 공식 문서](https://platform.openai.com/docs/overview)
@@ -141,7 +141,7 @@ b = chat.predict("How many planets are in the solar system?")
 a, b
 ```
 
-## 2-2. invoke
+## 2-2. Invoke (Predict Messages)
 
 Chat model은 대화에 최적화 되어 있는데 질문을 받을 수 있을 뿐만 아니라 대화를 할 수 있습니다.
 즉 메시지의 묶음이라는 의미이며, 상대로서 대화의 맥락에 맞게 대답할 수 있습니다.
@@ -219,191 +219,266 @@ chat.invoke(prompt)
 
 ## 2-4. OutputParser and LCEL
 
+OutputParser는 LLM의 응답(Response)을 다양한 형태로 변형을 하기 위해서 사용합니다.
+LCEL(langchain expression language)은 복잡할 수도 있는 코드를 간결하게 만들 수 있습니다. 그리고 다양한 template와 LLM 호출, 그리고 서로 다른 응답(Response)를 함께 사용할 수 있습니다.
+
+첫번째로 OutputParser 예제로 간단하게 응답을 list로 변환해보겠습니다.
+
+```py
+from langchain.chat_models import ChatOpenAI
+from langchain.schema import BaseOutputParser
+# PromptTemplate - 문자열을 이용한 template 생성
+# ChatPromptTemplate - message를 이용하여 template 생성
+from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate, AIMessagePromptTemplate
+
+chat = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+)
+
+# 문자열 출력을 파싱하는 BaseOutputParser 확장하는 커스텀 OutputParser
+class CommaOutputParser(BaseOutputParser):
+    def parse(self, text: str) -> str:
+        items = text.strip().split(",")
+        return list(map(str.strip, items))
+
+p = CommaOutputParser()
+
+messages = [
+    SystemMessagePromptTemplate.from_template("You are a list gernerating machine. Everything you are asked will be answered with a comma separated list of max {max_items} in lowercase. Do Not reply with else."),
+    HumanMessagePromptTemplate.from_template("{question}")
+]
+template = ChatPromptTemplate.from_messages(messages)
+prompt = template.format_messages(max_items=10, question="What are the colors?")
+res = chat.invoke(prompt)
+p.parse(res.content)
+```
+
+결과는 단순하지만 실행하는 코드는 너무 복잡합니다. 이것을 단순화하기 위해 Chaining 하도록 변경해 보겠습니다.
+
+```py
+from langchain.chat_models import ChatOpenAI
+from langchain.schema import BaseOutputParser
+# PromptTemplate - 문자열을 이용한 template 생성
+# ChatPromptTemplate - message를 이용하여 template 생성
+from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate, AIMessagePromptTemplate
+
+chat = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+)
+
+# 문자열 출력을 파싱하는 BaseOutputParser 확장하는 커스텀 OutputParser
+class CommaOutputParser(BaseOutputParser):
+    def parse(self, text: str) -> str:
+        items = text.strip().split(",")
+        return list(map(str.strip, items))
+
+messages = [
+    SystemMessagePromptTemplate.from_template("You are a list gernerating machine. Everything you are asked will be answered with a comma separated list of max {max_items} in lowercase. Do Not reply with else."),
+    HumanMessagePromptTemplate.from_template("{question}")
+]
+
+# Chaining
+chain = template | chat | CommaOutputParser()
+
+chain.invoke({
+    "max_items":10,
+    "question":"What are the colors?",
+})
+```
+
 ## 2-5. Chaining Chains
 
-# 3. 모델
+```py
+
+```
+
+# 3. MODEL IO
 
 ## 3-1. FewShotPromptTemplate
 
 ## 3-2. FewShotChatMessagePromptTemplate
 
-## 3-3. 길이 기반 예제 선택기
+## 3-3. LengthBasedExampleSelector
 
-## 3-4. 직렬화 및 구성
+## 3-4. Serialization and Composition
 
-## 3-5. 캐싱
+## 3-5. Caching
 
-## 3-6. 직렬화
+## 3-6. Serialization
 
-# 4. 메모리
+# 4. MEMORY
 
-## 4-1. 대화버퍼 메모리
+## 4-1. ConversationBufferMemory
 
-## 4-2. 대화버퍼창 메모리
+## 4-2. ConversationBufferWindowMemory
 
-## 4-3. 대화 요약 메모리
+## 4-3. ConversationSummaryMemory
 
-## 4-4. 대화 요약 버퍼 메모리
+## 4-4. ConversationSummaryBufferMemory
 
-## 4-5. 대화 KGMemory
+## 4-5. ConversationKGMemory
 
-## 4-6. LLMChain의 메모리
+## 4-6. Memory on LLMChain
 
-## 4-7. 채팅 기반 메모리
+## 4-7. Chat Based Memory
 
-## 4-8. LCEL 기반 메모리
+## 4-8. LCEL Based Memory
 
-# 5. 레그
+# 5. RAG
 
-## 5-1. 데이터 로더 및 분할기
+## 5-1. Data Loaders and Splitters
 
-## 5-2. 틱토큰
+## 5-2. Tiktoken
 
-## 5-3. 벡터
+## 5-3. Vectors
 
-## 5-4. 벡터 저장소
+## 5-4. Vectors Store
 
-## 5-5. 랭스미스
+## 5-5. Langsmith
 
-## 5-6. 검색 QA
+## 5-6. RetrievalQA
 
-## 5-7. LCEL 체인 관련 내용
+## 5-7. Stuff LCEL Chain
 
-## 5-8. 맵 축소 LCEL cpdls
+## 5-8. Map Reduce LCEL Chain
 
-# 6. 문서 GPT
+# 6. DOCUMENT GPT
 
-## 6-1. 매직
+## 6-1. Magic
 
-## 6-2. 데이터 흐름
+## 6-2. Data Flow
 
-## 6-3. 다중 페이지
+## 6-3. Multi Page
 
-## 6-4. 채팅 페이지
+## 6-4. Chat Message
 
-## 6-5. 문서 업로드
+## 6-5. Uploading Documents
 
-## 6-6. 채팅 기록
+## 6-6. Chat History
 
-## 6-7. 체인
+## 6-7. Chain
 
-## 6-8. 스트리밍
+## 6-8. Streaming
 
-# 7. 프라이빗 GPT
+# 7. PRIVATE GPT
 
 ## 7-1. HuggingFaceHub
 
 ## 7-2. HuggingFacePipeline
 
-## 7-3. GPT4
+## 7-3. GPT4ALL
 
-## 7-4. 존재하다
+## 7-4. Ollama
 
-## 7-5. 결론
+## 7-5. Conclusions
 
-# 8. 퀴즈 GPT
+# 8. QUIZ GPT
 
 ## 9-1. WikipediaRetriever
 
-## 9-2. GPT-Turbo
+## 9-2. GPT4-Turbo
 
-## 9-3. 질문 프롬프트
+## 9-3. Questions Prompt
 
-## 9-4. 포멧터 프롬프트
+## 9-4. Formatter Prompt
 
-## 9-5. 출력 파서
+## 9-5. Output Parser
 
-## 9-6. 캐싱
+## 9-6. Caching
 
-## 9-7. 채점 질문
+## 9-7. Grading Questions
 
-## 9-8. 함수 호출
+## 9-8. Function Calling
 
-## 9-9. 결론
+## 9-9. Conclusions
 
-# 10. 사이트 GPT
+# 10. SITE GPT
 
 ## 10-1. AsyncChromiumLoader
 
-## 10-2. 사이트맵 로더
+## 10-2. SitemapLoader
 
-## 10-3. 파싱 기능
+## 10-3. Parsing Function
 
-## 10-4. 맵 재순위 체인
+## 10-4. Map Re Rank Chain
 
-## 10-5. 맵 리랭크 체인 2부
+## 10-5. Map Re Rank Chain part Two
 
-## 10-6. 코드 챌린지
+## 10-6. Code Challenge
 
-# 11. 회의 GPT
+# 11. MEETING GPT
 
-## 11-1. 오디오 추출
+## 11-1. Audio Extraction
 
-## 11-2. 오디오 자르기
+## 11-2. Cutting The Audio
 
-## 11-3. 속삭임 대본
+## 11-3. Whisper Transcript
 
-## 11-4. 업로드 UI
+## 11-4. Upload UI
 
-## 11-5. 체인 개선 계획
+## 11-5. Refine Chain Plan
 
-## 11-6. 체인 다듬기
+## 11-6. Refine Chain
 
-## 11-7. Q&A 탭
+## 11-7. Q&A Tab
 
-# 12. 투자자 GPT
+# 12. INVEST OR GPT
 
-## 12-1. 첫번째 에이전트
+## 12-1. Your First Agent
 
-## 12-2. 에이전트의 작동 방식
+## 12-2. How do Agents Work
 
-## 12-3. 제로샷 ReAct 에이전트
+## 12-3. Zero-shot ReAct Agent
 
-## 12-4. OpenAI 기능 에이전트
+## 12-4. OpenAI Functions Agent
 
-## 12-5. 검색도구
+## 12-5. Search Toll
 
-## 12-6. 주식 정보 도구
+## 12-6. Stock Information Tools
 
-## 12-7. 에이전트 프롬프트
+## 12-7. Agent Prompt
 
 ## 12-8. SQLDatavase Toolkit
 
-# 13. 세프 GPT
+## 12-9. Conclusions
 
-## 13-1. CustomGPT 생성
+# 13. CHEF GPT
 
-## 13-2. FastAPI 서버
+## 13-1. CustomGPT Creation
 
-## 13-3. GPT 작업
+## 13-2. FastAPI Server
 
-## 13-4. API 키 인증
+## 13-3. GPT Action
+
+## 13-4. API Key Auth
 
 ## 13-5. OAuth
 
-## 13-6. 솔방울
+## 13-6. Chef API
 
-## 13-7. 세프 API
+## 13-7. Code Challenge
 
-## 13-8. 코드 첼린지
+## 13-8. Conclusions
 
-# 14. 어시스턴트 API
+# 14. ASSISTANTS API
 
-## 14-1. 도우미의 작동 방식
+## 14-1. How Assistants Work
 
-## 14-2. 도우미 만들기
+## 14-2. Creating The Assistants
 
-## 14-3. 보조 도구
+## 14-3. Assistants Tools
 
-## 14-4. 스레드 실행
+## 14-4. Running A Thread
 
-## 14-5. 보조 작업
+## 14-5. Assistants Actions
 
-## 14-6. 코드 챌린지
+## 14-6. Code Challenge
 
-## 14-7. RAG 도우미
+## 14-7. RAG Assistant
 
-# 15. AzureGPT 및 AWS BEDROCK
+## 14-8. Conclusions
+
+# 15. AzureGPT & AWS BEDROCK
 
 ## 15-1. AWS BEDROCK
 
@@ -415,18 +490,20 @@ chat.invoke(prompt)
 
 # 16. CrewAI
 
-## 16-1. 설정
+## 16-1. Setup
 
-## 16-2. 승무원, 에이전트 및 작업
+## 16-2. Crews, Agents and Tasks
 
-## 16-3. 세프크루
+## 16-3. Chef Crew
 
-## 16-4. 컨텐츠 팜 팀
+## 16-4. Content Farm Crew
 
-## 16-5. Pydantic 출력
+## 16-5. Pydantic Outputs
 
-## 16-6. 비동기 유튜버 제작진
+## 16-6. Async Youtuber Crew
 
-## 16-7. 사용자 정의 도구
+## 16-7. Custom Tools
 
-## 16-8. 주식 시장 직원
+## 16-8. Stock Market Crew
+
+## 16-9. Conclusions
