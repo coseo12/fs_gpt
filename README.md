@@ -134,8 +134,8 @@ from langchain_openai import OpenAI, ChatOpenAI # LLM, Chat model
 llm = OpenAI()
 chat = ChatOpenAI()
 
-a = llm.invoke("How many planets are in the solar system?")
-b = chat.invoke("How many planets are in the solar system?")
+a = llm.predict("How many planets are in the solar system?")
+b = chat.predict("How many planets are in the solar system?")
 
 a, b
 ```
@@ -801,8 +801,33 @@ chain.invoke({
 
 ## 3-5. Caching
 
-```py
+-[Caching](https://python.langchain.com/v0.1/docs/modules/model_io/llms/llm_caching/)
 
+이곳에서는 정말 중요한 Caching에 대해서 알아보겠습니다. Caching을 사용하면 LM(Language Model)의 응답을 저장할 수 있습니다. 예를들어 채팅봇이 있고 채팅봇이 같은 질문을 받는다면 계속 답변을 만들지 않고 이미 답변한 답을 Caching하여 재사용할 수 있으며 이를 통해 비용을 절감할 수 있습니다.
+Caching에는 다양한 방법이 존재하며 자세한 내용은 위에 공식문서 링크를 참조해주세요.
+
+아래는 SQLLite를 이용한 캐싱에 예제를 보여드리겠습니다.
+
+```py
+from langchain_openai import ChatOpenAI
+from langchain.callbacks import StreamingStdOutCallbackHandler
+from langchain.globals import set_llm_cache, set_debug
+from langchain.cache import InMemoryCache, SQLiteCache
+
+# 인 메모리 캐시
+# set_llm_cache(InMemoryCache())
+# set_debug(True)
+
+# 데이터베이스 캐시
+set_llm_cache(SQLiteCache('cache.db'))
+
+chat = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+    # streaming=True, # streaming 옵션을 활성화하여 대화형 모드로 설정
+    # callbacks=[StreamingStdOutCallbackHandler()], # 콜백 함수를 설정
+)
+
+chat.predict("How do you make italian pasta?")
 ```
 
 ## 3-6. Serialization
