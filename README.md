@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(9%)
+- 진행 중...(11%)
 
 ## Open AI를 위한 요구사항
 
@@ -12,8 +12,8 @@
 
 VSCode 기준 필수 플러그인
 
-[Python language support](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
-[Jupyter notebook support](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter)
+- [Python language support](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+- [Jupyter notebook support](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter)
 
 ## 1-1. 가상환경 (Python 3.12.4)
 
@@ -116,14 +116,14 @@ Jupyter Notebook은 대화형 컴퓨팅 환경으로, 특히 데이터 과학, �
 
 # 2. LANGCHAIN
 
-[랭체인 공식 문서](https://python.langchain.com/v0.1/docs/get_started/quickstart/)
-[OpenAI 공식 문서](https://platform.openai.com/docs/overview)
+- [랭체인 공식 문서](https://python.langchain.com/v0.1/docs/get_started/quickstart/)
+- [OpenAI 공식 문서](https://platform.openai.com/docs/overview)
 
 ## 2-1. LLM and Chat Models
 
 기본적으로 여러가지 모델들로 작업하기 좋은 인터페이스를 가지고 있으며 각 모델들은 서로 다른 기업에서 제공되고 또한 서로 다른 차이점을 지니고 있지만 랭체인을 사용하면 모든 모델에 호환되는 계층을 사용할 수 있습니다.
 
-[Open AI Models](https://platform.openai.com/docs/models)
+- [Open AI Models](https://platform.openai.com/docs/models)
 
 간단하게 LLM 과 Chat Models 를 호출해보겠습니다.
 이 둘은 텍스트를 Predict 할 수 있습니다.
@@ -134,8 +134,8 @@ from langchain_openai import OpenAI, ChatOpenAI # LLM, Chat model
 llm = OpenAI()
 chat = ChatOpenAI()
 
-a = llm.predict("How many planets are in the solar system?")
-b = chat.predict("How many planets are in the solar system?")
+a = llm.invoke("How many planets are in the solar system?")
+b = chat.invoke("How many planets are in the solar system?")
 
 a, b
 ```
@@ -188,7 +188,7 @@ template = PromptTemplate.from_template("What is the distance between {country_a
 
 prompt = template.format(country_a="Mexico", country_b="Thailand")
 
-chat.predict(prompt)
+chat.invoke(prompt)
 ```
 
 이번에는 메시지를 통한 invoke를 실행하는 예제를 작성해 보겠습니다.
@@ -286,7 +286,7 @@ chain.invoke({
 
 ## 2-5. Chaining Chains
 
-[Expression Language/interface](https://python.langchain.com/v0.1/docs/expression_language/interface/)
+- [Expression Language/interface](https://python.langchain.com/v0.1/docs/expression_language/interface/)
 
 Chaining과 LCEL(langchain expression language)에 대하여 좀 더 깊게 알아보도록 하겠습니다.
 이전 Chaining과 코드를 살펴보겠습니다.
@@ -346,7 +346,7 @@ final_chain.invoke({
 })
 ```
 
-# 3. MODEL IO
+# 3. MODEL I/O
 
 Langchain에는 다양한 Model I/O가 존재합니다. 이는 다른 모든 언어 모델들과 인터페이스 할 수 있는 빌딩 블록을 제공합니다.
 
@@ -356,15 +356,106 @@ Langchain에는 다양한 Model I/O가 존재합니다. 이는 다른 모든 언
 
 ## 3-1. FewShotPromptTemplate
 
+우리는 Prompt Template를 통하여 메시지의 유효성 확인하고 또한 저장 및 불러오기를 할 수 있습니다. 규모가 있는 LLM을 만들기 시작할 때 Prompt는 매우 중요합니다.
+기본적으로 Fewshot 은 Model 들에게 예제들을 준다는 뜻과 같습니다. 이는 더 좋은 대답을 할 수 있도록 하는 예제들을 제공하는 것입니다.
+예를 들어 구체적으로 대답하는 AI Model이 필요하다고 가정했을 시 어떻게 대답해야 하는 지에 대한 예제를 AI Model에게 제공하였을 때 Prompt를 사용해서 어떻게 대답해야 하는지 알려주는 것보다 더 좋습니다. 왜냐하면 모델은 텍스트를 만들기 때문에 Prompt로 명령을 하는 것보다 어떻게 대답해야 하는지 예제를 제공해주는 것이 더 좋은 방법입니다. 이것이 FewShotPromptTemplate이 하는 일이며 이를 통하여 예제를 형식화 할 수 있습니다.
+또한 예제들이 데이터베이스에 있을 수도 있기 때문에 이런 대화 기록 같은 것들을 데이터베이스에서 가져와서 FewShotPromptTemplate이 사용하여 형식화 시켜주면 더 빠르게 잘 만들 수 있습니다.
+
+이제 간단한 예제를 작성해보겠습니다.
+
+```py
+from langchain_openai import ChatOpenAI
+# PromptTemplate - 문자열을 이용한 template 생성
+# ChatPromptTemplate - message를 이용하여 template 생성
+from langchain.prompts import PromptTemplate, ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate, AIMessagePromptTemplate
+from langchain.prompts.few_shot import FewShotPromptTemplate
+from langchain.callbacks import StreamingStdOutCallbackHandler
+
+chat = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+    streaming=True, # streaming 옵션을 활성화하여 대화형 모드로 설정
+    callbacks=[StreamingStdOutCallbackHandler()], # 콜백 함수를 설정
+)
+
+# 모델에게 전달하는 답변 예제
+examples = [
+    {
+        "question": "What do you know about France?",
+        "answer": """
+        Here is what I know:
+        Capital: Paris
+        Language: French
+        Food: Wine and Cheese
+        Currency: Euro
+        """,
+    },
+    {
+        "question": "What do you know about Italy?",
+        "answer": """
+        I know this:
+        Capital: Rome
+        Language: Italian
+        Food: Pizza and Pasta
+        Currency: Euro
+        """,
+    },
+    {
+        "question": "What do you know about Greece?",
+        "answer": """
+        I know this:
+        Capital: Athens
+        Language: Greek
+        Food: Souvlaki and Feta Cheese
+        Currency: Euro
+        """,
+    }]
+
+example_prompt = PromptTemplate.from_template("Human: {question}\nAI: {answer}")
+
+prompt = FewShotPromptTemplate(
+    example_prompt=example_prompt, # Prompt 방식
+    examples=examples, # 답변 예제
+    suffix="Human: Wat do you know about {country}?", # 모든 형식화된 예제 마지막 내용
+    input_variables=["country"] # suffix 입력 변수 (유효성 검사)
+)
+
+chain = prompt | chat
+
+chain.invoke({
+    "country":"Germany",
+})
+
+```
+
 ## 3-2. FewShotChatMessagePromptTemplate
+
+```py
+
+```
 
 ## 3-3. LengthBasedExampleSelector
 
+```py
+
+```
+
 ## 3-4. Serialization and Composition
+
+```py
+
+```
 
 ## 3-5. Caching
 
+```py
+
+```
+
 ## 3-6. Serialization
+
+```py
+
+```
 
 # 4. MEMORY
 
