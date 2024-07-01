@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(12%)
+- 진행 중...(14%)
 
 ## Open AI를 위한 요구사항
 
@@ -658,8 +658,145 @@ prompt.format(country="Brazil")
 
 ## 3-4. Serialization and Composition
 
-```py
+이번에는 디스크에서 prompt template를 가져오는 방법을 알아보겠습니다. 만들어진 prompt를 가져다 쓰거나 다른 누구나 가져다 쓸 수 있도록 하고 싶다면 유용한 방법입니다.
 
+일단 JSON 형식의 Prompt를 생성해보겠습니다.
+
+```json
+{
+  "_type": "prompt",
+  "template": "What is the capital of {country}",
+  "input_variables": ["country"]
+}
+```
+
+JSON 형태의 Prompt를 실행해 보겠습니다.
+
+```py
+from langchain_openai import ChatOpenAI
+# PromptTemplate - 문자열을 이용한 template 생성
+# ChatPromptTemplate - message를 이용하여 template 생성
+from langchain.prompts import PromptTemplate, ChatMessagePromptTemplate, ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate, AIMessagePromptTemplate
+from langchain.prompts.few_shot import FewShotPromptTemplate, FewShotChatMessagePromptTemplate
+from langchain.callbacks import StreamingStdOutCallbackHandler
+from langchain.prompts import load_prompt
+
+prompt = load_prompt("./prompt.json")
+
+
+chat = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+    streaming=True, # streaming 옵션을 활성화하여 대화형 모드로 설정
+    callbacks=[StreamingStdOutCallbackHandler()], # 콜백 함수를 설정
+)
+
+prompt.format(country="Germany")
+```
+
+이젠 Yaml 형태로 만들어보겠습니다.
+
+```yaml
+_type: "prompt"
+template: "What is the capital of {country}"
+input_variables: ["country"]
+```
+
+Yaml 형태의 Prompt를 실행해 보겠습니다.
+
+```py
+from langchain_openai import ChatOpenAI
+# PromptTemplate - 문자열을 이용한 template 생성
+# ChatPromptTemplate - message를 이용하여 template 생성
+from langchain.prompts import PromptTemplate, ChatMessagePromptTemplate, ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate, AIMessagePromptTemplate
+from langchain.prompts.few_shot import FewShotPromptTemplate, FewShotChatMessagePromptTemplate
+from langchain.callbacks import StreamingStdOutCallbackHandler
+from langchain.prompts import load_prompt
+
+# prompt = load_prompt("./prompt.json")
+prompt = load_prompt("./prompt.yaml")
+
+
+chat = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+    streaming=True, # streaming 옵션을 활성화하여 대화형 모드로 설정
+    callbacks=[StreamingStdOutCallbackHandler()], # 콜백 함수를 설정
+)
+
+prompt.format(country="Germany")
+```
+
+이번에는 많은 prompt들을 Memory에 모두 모아두는 방법에 대해 알아보겠습니다. 이를 위해서는 PipelinePromptTemplate이 필요합니다. 이 Module은 prompt들을 하나로 합칠 수 있도록 도와줍니다.
+
+```py
+from langchain_openai import ChatOpenAI
+# PromptTemplate - 문자열을 이용한 template 생성
+# ChatPromptTemplate - message를 이용하여 template 생성
+from langchain.prompts import PromptTemplate, ChatMessagePromptTemplate, ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate, AIMessagePromptTemplate
+from langchain.prompts.few_shot import FewShotPromptTemplate, FewShotChatMessagePromptTemplate
+from langchain.callbacks import StreamingStdOutCallbackHandler
+# Prompt Pipeline 불러오기
+from langchain.prompts.pipeline import PipelinePromptTemplate
+
+chat = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+    streaming=True, # streaming 옵션을 활성화하여 대화형 모드로 설정
+    callbacks=[StreamingStdOutCallbackHandler()], # 콜백 함수를 설정
+)
+
+intro = PromptTemplate.from_template(
+    """
+    You are a role playing assistant.
+    And you are impersonating a {character}
+"""
+)
+
+example = PromptTemplate.from_template(
+    """
+    This is an example of how you talk:
+
+    Human: {example_question}
+    You: {example_answer}
+"""
+)
+
+start = PromptTemplate.from_template(
+    """
+    Start now!
+
+    Human: {question}
+    You:
+"""
+)
+
+final = PromptTemplate.from_template(
+    """
+    {intro}
+
+    {example}
+
+    {start}
+"""
+)
+
+prompts = [
+    ("intro", intro),
+    ("example", example),
+    ("start", start),
+]
+
+full_prompt = PipelinePromptTemplate(
+    final_prompt=final,
+    pipeline_prompts=prompts,
+)
+
+chain = full_prompt | chat
+
+chain.invoke({
+    "character":"Pirate",
+    "example_question":"What is your location?",
+    "example_answer":"Arrrrg! That is a secret!! Arg arg",
+    "question": "What is your fav food?"
+})
 ```
 
 ## 3-5. Caching
