@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(14%)
+- 진행 중...(15%)
 
 ## Open AI를 위한 요구사항
 
@@ -134,8 +134,8 @@ from langchain_openai import OpenAI, ChatOpenAI # LLM, Chat model
 llm = OpenAI()
 chat = ChatOpenAI()
 
-a = llm.predict("How many planets are in the solar system?")
-b = chat.predict("How many planets are in the solar system?")
+a = llm.invoke("How many planets are in the solar system?")
+b = chat.invoke("How many planets are in the solar system?")
 
 a, b
 ```
@@ -801,7 +801,7 @@ chain.invoke({
 
 ## 3-5. Caching
 
--[Caching](https://python.langchain.com/v0.1/docs/modules/model_io/llms/llm_caching/)
+- [Caching](https://python.langchain.com/v0.1/docs/modules/model_io/llms/llm_caching/)
 
 이곳에서는 정말 중요한 Caching에 대해서 알아보겠습니다. Caching을 사용하면 LM(Language Model)의 응답을 저장할 수 있습니다. 예를들어 채팅봇이 있고 채팅봇이 같은 질문을 받는다면 계속 답변을 만들지 않고 이미 답변한 답을 Caching하여 재사용할 수 있으며 이를 통해 비용을 절감할 수 있습니다.
 Caching에는 다양한 방법이 존재하며 자세한 내용은 위에 공식문서 링크를 참조해주세요.
@@ -832,8 +832,65 @@ chat.predict("How do you make italian pasta?")
 
 ## 3-6. Serialization
 
-```py
+지출하는 비용을 알아보는 방법과 Model을 어떻게 저장하고 불러오는지에 대해서 알아보겠습니다.
 
+첫번째로 지출하는 비용알 알아보는 예제를 보여드리겠습니다.
+
+```py
+from langchain_openai import ChatOpenAI
+from langchain.callbacks import get_openai_callback
+
+chat = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+)
+
+with get_openai_callback() as usage:
+    a = chat.predict("What is the recipe for soju?")
+    b = chat.predict("What is the recipe for bread?")
+    print(a, b, "\n")
+    print(usage)
+```
+
+두번째로 Serialization에 대해 알아보겠습니다. 채팅모델이 아닌 LLM으로 작업 시 너무 많은 설정을 하는 경우가 있습니다. 그래서 쉽게 처리하기 위해 예를 들어 아래와 같이 모델을 변경하고 내용을 저장한다면
+
+```py
+from langchain_openai import OpenAI
+
+# Serialization
+chat = OpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+    max_tokens=450,
+    model="gpt-3.5-turbo-16k",
+)
+
+chat.save('model.json')
+```
+
+아래와 같은 JSON 파일이 생성됩니다.
+
+```json
+{
+  "model_name": "gpt-3.5-turbo-16k",
+  "temperature": 0.1,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "n": 1,
+  "logit_bias": {},
+  "max_tokens": 450,
+  "_type": "openai"
+}
+```
+
+또는 모델을 불러온다면 아래와 같이 간단하게 처리할 수 있습니다.
+
+```py
+from langchain.llms.loading import load_llm
+
+# 모델 불러오기
+chat = load_llm('model.json')
+
+print(chat)
 ```
 
 # 4. MEMORY
