@@ -424,12 +424,12 @@ chain = prompt | chat
 chain.invoke({
     "country":"Germany",
 })
-
 ```
 
 ## 3-2. FewShotChatMessagePromptTemplate
 
 ```py
+
 
 ```
 
@@ -525,136 +525,136 @@ chain.invoke({
 
 # 8. QUIZ GPT
 
-## 9-1. WikipediaRetriever
+## 8-1. WikipediaRetriever
 
-## 9-2. GPT4-Turbo
+## 8-2. GPT4-Turbo
 
-## 9-3. Questions Prompt
+## 8-3. Questions Prompt
 
-## 9-4. Formatter Prompt
+## 8-4. Formatter Prompt
 
-## 9-5. Output Parser
+## 8-5. Output Parser
 
-## 9-6. Caching
+## 8-6. Caching
 
-## 9-7. Grading Questions
+## 8-7. Grading Questions
 
-## 9-8. Function Calling
+## 8-8. Function Calling
 
-## 9-9. Conclusions
+## 8-9. Conclusions
 
-# 10. SITE GPT
+# 9. SITE GPT
 
-## 10-1. AsyncChromiumLoader
+## 9-1. AsyncChromiumLoader
 
-## 10-2. SitemapLoader
+## 9-2. SitemapLoader
 
-## 10-3. Parsing Function
+## 9-3. Parsing Function
 
-## 10-4. Map Re Rank Chain
+## 9-4. Map Re Rank Chain
 
-## 10-5. Map Re Rank Chain part Two
+## 9-5. Map Re Rank Chain part Two
 
-## 10-6. Code Challenge
+## 9-6. Code Challenge
 
-# 11. MEETING GPT
+# 10. MEETING GPT
 
-## 11-1. Audio Extraction
+## 10-1. Audio Extraction
 
-## 11-2. Cutting The Audio
+## 10-2. Cutting The Audio
 
-## 11-3. Whisper Transcript
+## 10-3. Whisper Transcript
 
-## 11-4. Upload UI
+## 10-4. Upload UI
 
-## 11-5. Refine Chain Plan
+## 10-5. Refine Chain Plan
 
-## 11-6. Refine Chain
+## 10-6. Refine Chain
 
-## 11-7. Q&A Tab
+## 10-7. Q&A Tab
 
-# 12. INVEST OR GPT
+# 11. INVEST OR GPT
 
-## 12-1. Your First Agent
+## 11-1. Your First Agent
 
-## 12-2. How do Agents Work
+## 11-2. How do Agents Work
 
-## 12-3. Zero-shot ReAct Agent
+## 11-3. Zero-shot ReAct Agent
 
-## 12-4. OpenAI Functions Agent
+## 11-4. OpenAI Functions Agent
 
-## 12-5. Search Toll
+## 11-5. Search Toll
 
-## 12-6. Stock Information Tools
+## 11-6. Stock Information Tools
 
-## 12-7. Agent Prompt
+## 11-7. Agent Prompt
 
-## 12-8. SQLDatavase Toolkit
+## 11-8. SQLDatavase Toolkit
 
-## 12-9. Conclusions
+## 11-9. Conclusions
 
-# 13. CHEF GPT
+# 12. CHEF GPT
 
-## 13-1. CustomGPT Creation
+## 12-1. CustomGPT Creation
 
-## 13-2. FastAPI Server
+## 12-2. FastAPI Server
 
-## 13-3. GPT Action
+## 12-3. GPT Action
 
-## 13-4. API Key Auth
+## 12-4. API Key Auth
 
-## 13-5. OAuth
+## 12-5. OAuth
 
-## 13-6. Chef API
+## 12-6. Chef API
 
-## 13-7. Code Challenge
+## 12-7. Code Challenge
+
+## 12-8. Conclusions
+
+# 13. ASSISTANTS API
+
+## 13-1. How Assistants Work
+
+## 13-2. Creating The Assistants
+
+## 13-3. Assistants Tools
+
+## 13-4. Running A Thread
+
+## 13-5. Assistants Actions
+
+## 13-6. Code Challenge
+
+## 13-7. RAG Assistant
 
 ## 13-8. Conclusions
 
-# 14. ASSISTANTS API
+# 14. AzureGPT & AWS BEDROCK
 
-## 14-1. How Assistants Work
+## 14-1. AWS BEDROCK
 
-## 14-2. Creating The Assistants
+## 14-2. AWS IAM
 
-## 14-3. Assistants Tools
+## 14-4. BEDROCKCHAT
 
-## 14-4. Running A Thread
+## 14-5. AzureChatOpenAI
 
-## 14-5. Assistants Actions
+# 15. CrewAI
 
-## 14-6. Code Challenge
+## 15-1. Setup
 
-## 14-7. RAG Assistant
+## 15-2. Crews, Agents and Tasks
 
-## 14-8. Conclusions
+## 15-3. Chef Crew
 
-# 15. AzureGPT & AWS BEDROCK
+## 15-4. Content Farm Crew
 
-## 15-1. AWS BEDROCK
+## 15-5. Pydantic Outputs
 
-## 15-2. AWS IAM
+## 15-6. Async Youtuber Crew
 
-## 15-4. BEDROCKCHAT
+## 15-7. Custom Tools
 
-## 15-5. AzureChatOpenAI
+## 15-8. Stock Market Crew
 
-# 16. CrewAI
-
-## 16-1. Setup
-
-## 16-2. Crews, Agents and Tasks
-
-## 16-3. Chef Crew
-
-## 16-4. Content Farm Crew
-
-## 16-5. Pydantic Outputs
-
-## 16-6. Async Youtuber Crew
-
-## 16-7. Custom Tools
-
-## 16-8. Stock Market Crew
-
-## 16-9. Conclusions
+## 15-9. Conclusions
