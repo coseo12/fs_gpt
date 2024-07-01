@@ -504,8 +504,156 @@ chain.invoke({
 
 ## 3-3. LengthBasedExampleSelector
 
-```py
+여기에서는 동적으로 예제들을 선택할 수 있는 방법에 대해 알아보겠습니다. 상황에 따라서는 많은 예제들이 존재하고 어느정도 예제들을 골라서 Prompt에 허용할 것인가에 대해 정의를 해야합니다. 이유는 많은 Prompt는 더 큰 비용을 지불해야 하며 비용이 존재하더라도 모델에 알맞은 양이 존재합니다.
 
+간단한 길이를 조절하는 기본 예제를 작성해 보겠습니다.
+
+```py
+from langchain_openai import ChatOpenAI
+# PromptTemplate - 문자열을 이용한 template 생성
+# ChatPromptTemplate - message를 이용하여 template 생성
+from langchain.prompts import PromptTemplate, ChatMessagePromptTemplate, ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate, AIMessagePromptTemplate
+from langchain.prompts.few_shot import FewShotPromptTemplate, FewShotChatMessagePromptTemplate
+from langchain.callbacks import StreamingStdOutCallbackHandler
+from langchain.prompts.example_selector import LengthBasedExampleSelector
+
+chat = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+    streaming=True, # streaming 옵션을 활성화하여 대화형 모드로 설정
+    callbacks=[StreamingStdOutCallbackHandler()], # 콜백 함수를 설정
+)
+
+# 모델에게 전달하는 답변 예제
+examples = [
+    {
+        "question": "What do you know about France?",
+        "answer": """
+        Here is what I know:
+        Capital: Paris
+        Language: French
+        Food: Wine and Cheese
+        Currency: Euro
+        """,
+    },
+    {
+        "question": "What do you know about Italy?",
+        "answer": """
+        I know this:
+        Capital: Rome
+        Language: Italian
+        Food: Pizza and Pasta
+        Currency: Euro
+        """,
+    },
+    {
+        "question": "What do you know about Greece?",
+        "answer": """
+        I know this:
+        Capital: Athens
+        Language: Greek
+        Food: Souvlaki and Feta Cheese
+        Currency: Euro
+        """,
+    }]
+
+example_prompt = PromptTemplate.from_template("Human: {question}\nAI: {answer}")
+
+# 예제 선택
+example_selector = LengthBasedExampleSelector(
+    examples=examples, # 답변 예제
+    example_prompt=example_prompt, # Prompt 방식
+    max_length=180 # 최대 길이
+)
+
+
+prompt = FewShotPromptTemplate(
+    example_prompt=example_prompt, # Prompt 방식
+    example_selector=example_selector, # 답변 선택
+    suffix="Human: Wat do you know about {country}?", # 모든 형식화된 예제 마지막 내용
+    input_variables=["country"] # suffix 입력 변수 (유효성 검사)
+)
+
+prompt.format(country="Brazil")
+```
+
+랜덤한 예제를 선택하도록 수정해 보겠습니다.
+
+```py
+from langchain_openai import ChatOpenAI
+# PromptTemplate - 문자열을 이용한 template 생성
+# ChatPromptTemplate - message를 이용하여 template 생성
+from langchain.prompts import PromptTemplate, ChatMessagePromptTemplate, ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate, AIMessagePromptTemplate
+from langchain.prompts.few_shot import FewShotPromptTemplate, FewShotChatMessagePromptTemplate
+from langchain.callbacks import StreamingStdOutCallbackHandler
+# from langchain.prompts.example_selector import LengthBasedExampleSelector
+from langchain.prompts.example_selector.base import BaseExampleSelector
+
+class RandomExampleSelector(BaseExampleSelector):
+    def __init__(self, examples):
+        self.examples = examples
+
+    def add_example(self, example):
+        self.examples.append(example)
+
+    def select_examples(self, input_variables):
+        from random import choice
+        return [choice(self.examples)]
+
+chat = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+    streaming=True, # streaming 옵션을 활성화하여 대화형 모드로 설정
+    callbacks=[StreamingStdOutCallbackHandler()], # 콜백 함수를 설정
+)
+
+# 모델에게 전달하는 답변 예제
+examples = [
+    {
+        "question": "What do you know about France?",
+        "answer": """
+        Here is what I know:
+        Capital: Paris
+        Language: French
+        Food: Wine and Cheese
+        Currency: Euro
+        """,
+    },
+    {
+        "question": "What do you know about Italy?",
+        "answer": """
+        I know this:
+        Capital: Rome
+        Language: Italian
+        Food: Pizza and Pasta
+        Currency: Euro
+        """,
+    },
+    {
+        "question": "What do you know about Greece?",
+        "answer": """
+        I know this:
+        Capital: Athens
+        Language: Greek
+        Food: Souvlaki and Feta Cheese
+        Currency: Euro
+        """,
+    }]
+
+example_prompt = PromptTemplate.from_template("Human: {question}\nAI: {answer}")
+
+# 예제 선택
+example_selector = RandomExampleSelector(
+    examples=examples, # 답변 예제
+)
+
+
+prompt = FewShotPromptTemplate(
+    example_prompt=example_prompt, # Prompt 방식
+    example_selector=example_selector, # 답변 선택
+    suffix="Human: Wat do you know about {country}?", # 모든 형식화된 예제 마지막 내용
+    input_variables=["country"] # suffix 입력 변수 (유효성 검사)
+)
+
+prompt.format(country="Brazil")
 ```
 
 ## 3-4. Serialization and Composition
