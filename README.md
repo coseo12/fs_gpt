@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(11%)
+- 진행 중...(12%)
 
 ## Open AI를 위한 요구사항
 
@@ -428,9 +428,78 @@ chain.invoke({
 
 ## 3-2. FewShotChatMessagePromptTemplate
 
+이제 단순 문자열 형태가 아닌 메시지 형태의 FewShotChatMessagePromptTemplate를 작성해 보겠습니다.
+
 ```py
+from langchain_openai import ChatOpenAI
+# PromptTemplate - 문자열을 이용한 template 생성
+# ChatPromptTemplate - message를 이용하여 template 생성
+from langchain.prompts import PromptTemplate, ChatMessagePromptTemplate, ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate, AIMessagePromptTemplate
+from langchain.prompts.few_shot import FewShotPromptTemplate, FewShotChatMessagePromptTemplate
+from langchain.callbacks import StreamingStdOutCallbackHandler
+
+chat = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+    streaming=True, # streaming 옵션을 활성화하여 대화형 모드로 설정
+    callbacks=[StreamingStdOutCallbackHandler()], # 콜백 함수를 설정
+)
+
+# 모델에게 전달하는 답변 예제
+examples = [
+    {
+        "country": "France?",
+        "answer": """
+        Here is what I know:
+        Capital: Paris
+        Language: French
+        Food: Wine and Cheese
+        Currency: Euro
+        """,
+    },
+    {
+        "country": "Italy?",
+        "answer": """
+        I know this:
+        Capital: Rome
+        Language: Italian
+        Food: Pizza and Pasta
+        Currency: Euro
+        """,
+    },
+    {
+        "country": "Greece?",
+        "answer": """
+        I know this:
+        Capital: Athens
+        Language: Greek
+        Food: Souvlaki and Feta Cheese
+        Currency: Euro
+        """,
+    }]
 
 
+example_prompt = ChatPromptTemplate.from_messages([
+    HumanMessagePromptTemplate.from_template("What do you know about {country}?"),
+    AIMessagePromptTemplate.from_template("{answer}"),
+]
+)
+
+prompt = FewShotChatMessagePromptTemplate(
+    example_prompt=example_prompt, # Prompt 방식
+    examples=examples, # 답변 예제
+)
+
+final_prompt = ChatPromptTemplate.from_messages([
+    SystemMessagePromptTemplate.from_template("You are a geography expert, you give short answers."),
+    prompt,
+    HumanMessagePromptTemplate.from_template("What do you know about {country}?")
+])
+
+chain = final_prompt | chat
+
+chain.invoke({
+    "country":"Germany",
+})
 ```
 
 ## 3-3. LengthBasedExampleSelector
