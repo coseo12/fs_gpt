@@ -1036,13 +1036,56 @@ memory.load_memory_variables({"input": "what does Lee like"})
 
 ## 4-6. Memory on LLMChain
 
-```py
+이제 메모리를 체인에 결합하는 방법과 2종류의 체인에 결합하는 방법을 알아보겠습니다.
+그 중 첫번째로 LLMChain(off-the-shelf chain)이라는 것을 사용해보겠습니다. 하지만 실제로는 off-the-shelf chain보다는 일반적으로 직접 커스텀해서 활용하는 것을 더 선호합니다.
 
+```py
+from langchain_openai import ChatOpenAI
+from langchain.memory import ConversationSummaryBufferMemory
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+
+chat = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+)
+
+# max_token_limit은 메모리에 저장할 최대 토큰 수
+memory = ConversationSummaryBufferMemory(
+    llm=chat,
+    max_token_limit=120,
+    memory_key="chat_history",
+)
+
+
+
+template = """
+    You are a helpful AI talking to a human.
+
+    {chat_history}
+    Human:{question}
+    You:
+"""
+
+prompt = PromptTemplate.from_template(template)
+
+chain = LLMChain(
+    llm=chat,
+    memory=memory,
+    prompt=prompt,
+    verbose=True,
+)
+
+chain.predict(question="My name is Seo")
+chain.predict(question="I live Seoul in South Korea")
+chain.predict(question="What is my name?")
+
+memory.load_memory_variables({})
 ```
 
 ## 4-7. Chat Based Memory
 
 ```py
+
 
 ```
 
