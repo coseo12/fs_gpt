@@ -1,12 +1,12 @@
 # NOTE
 
-- 진행 중...(15%)
+- 진행 중...(16%)
 
 ## Open AI를 위한 요구사항
 
 - [x] Plus 유료 결제
 - [x] API Key (유료)
-- [x] 반드시 사용 한계 설정 필요 ( 요금 폭탄 주의 )
+- [x] 반드시 사용 한계 설정 필요
 
 # 1. 기본 설정
 
@@ -83,8 +83,7 @@ pip install -r requirements.txt
 
 ### 환경변수 파일 설정
 
-```json
-// OPEN AI API KEY
+```env
 OPENAI_API_KEY="sk-...n"
 ```
 
@@ -286,7 +285,7 @@ chain.invoke({
 
 ## 2-5. Chaining Chains
 
-- [Expression Language/interface](https://python.langchain.com/v0.1/docs/expression_language/interface/)
+- [공식문서 - Expression Language/interface](https://python.langchain.com/v0.1/docs/expression_language/interface/)
 
 Chaining과 LCEL(langchain expression language)에 대하여 좀 더 깊게 알아보도록 하겠습니다.
 이전 Chaining과 코드를 살펴보겠습니다.
@@ -352,7 +351,7 @@ Langchain에는 다양한 Model I/O가 존재합니다. 이는 다른 모든 언
 
 ![Model Image](./images/model.png)
 
-[Components/Modules](https://python.langchain.com/v0.1/docs/modules/)
+[공식문서 - Modules](https://python.langchain.com/v0.1/docs/modules/)
 
 ## 3-1. FewShotPromptTemplate
 
@@ -801,7 +800,7 @@ chain.invoke({
 
 ## 3-5. Caching
 
-- [Caching](https://python.langchain.com/v0.1/docs/modules/model_io/llms/llm_caching/)
+- [공식문서 - Caching](https://python.langchain.com/v0.1/docs/modules/model_io/llms/llm_caching/)
 
 이곳에서는 정말 중요한 Caching에 대해서 알아보겠습니다. Caching을 사용하면 LM(Language Model)의 응답을 저장할 수 있습니다. 예를들어 채팅봇이 있고 채팅봇이 같은 질문을 받는다면 계속 답변을 만들지 않고 이미 답변한 답을 Caching하여 재사용할 수 있으며 이를 통해 비용을 절감할 수 있습니다.
 Caching에는 다양한 방법이 존재하며 자세한 내용은 위에 공식문서 링크를 참조해주세요.
@@ -895,21 +894,68 @@ print(chat)
 
 # 4. MEMORY
 
+- [공식문서 - Memory](https://python.langchain.com/v0.1/docs/integrations/memory/)
+
+Langchain에는 크게 5가지 종류의 메모리가 있으며 각각의 저장방식과 장단점이 존재합니다. 챗봇은 메모리를 추가하지 않으면 아무것도 기억할 수 없습니다. 질문이 이어가거나 이해하기 위해서는 반드시 메모리가 필요합니다. 기본적으로 OpenAI에서 제공하는 API는 Langchain 없이 사용이 가능하나 메모리는 지원하지 않습니다. 일단 각 메모리의 종류와 차이점을 살펴보고 메모리를 사용하는 방법을 알아보겠습니다. (더 자세한 내용은 위 공식문서 링크를 참조해주세요)
+
 ## 4-1. ConversationBufferMemory
+
+이 메모리의 동작 방식은 매우 단순합니다. 그냥 단순히 이전 대화 내용 전체를 저장합니다. 이 메모리의 단점은 대화 내용이 길어질수록 메모리도 계속 커지면서 비효율적일 수 밖에 없습니다. 하지만 text completion할때 유용합니다. 예측을 하거나 텍스트를 자동완성하고 싶을때 등입니다.
+
+간단한 예제를 작성해보겠습니다.
+
+```py
+from langchain.memory import ConversationBufferMemory
+
+# 쳇 모델 용으로 사용할 경우 return_messages=True로 설정
+memory = ConversationBufferMemory(return_messages=True)
+
+memory.save_context({"input": "Hi!"}, {"output": "How are you?"})
+
+memory.load_memory_variables({})
+```
 
 ## 4-2. ConversationBufferWindowMemory
 
+```py
+
+```
+
 ## 4-3. ConversationSummaryMemory
+
+```py
+
+```
 
 ## 4-4. ConversationSummaryBufferMemory
 
+```py
+
+```
+
 ## 4-5. ConversationKGMemory
+
+```py
+
+```
 
 ## 4-6. Memory on LLMChain
 
+```py
+
+```
+
 ## 4-7. Chat Based Memory
 
+```py
+
+```
+
 ## 4-8. LCEL Based Memory
+
+```py
+
+```
 
 # 5. RAG
 
