@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(18%)
+- 진행 중...(20%)
 
 ## Open AI를 위한 요구사항
 
@@ -896,7 +896,8 @@ print(chat)
 
 Langchain에는 크게 5가지 종류의 메모리가 있으며 각각의 저장방식과 장단점이 존재합니다. 챗봇은 메모리를 추가하지 않으면 아무것도 기억할 수 없습니다. 질문이 이어가거나 이해하기 위해서는 반드시 메모리가 필요합니다. 기본적으로 OpenAI에서 제공하는 API는 Langchain 없이 사용이 가능하나 메모리는 지원하지 않습니다. 일단 각 메모리의 종류와 차이점을 살펴보고 메모리를 사용하는 방법을 알아보겠습니다. (더 자세한 내용은 아래 공식문서 링크를 참조해주세요)
 
-- [공식문서 - Memory](https://python.langchain.com/v0.1/docs/modules/memory/)
+- [공식문서 - Memory](https://python.langchain.com/v0.1/docs/integrations/memory/)
+- [공식문서 - Memory(BETA)](https://python.langchain.com/v0.1/docs/modules/memory/)
 
 ![Model Image](./images/memory.png)
 
@@ -1001,13 +1002,36 @@ add_message("HI I am a human, I live in South Korea", "Wow that is cool! I am a 
 add_message("South Korea is so pretty", "I wish I could visit there.")
 
 get_history()
-
 ```
 
 ## 4-5. ConversationKGMemory
 
-```py
+이 메모리는 대화중의 Entity의 knowledge graph를 생성합니다. 일종의 가장 중요한 것들만 뽑아내는 요약본과 같습니다.
 
+간단한 예제를 작성해보겠습니다.
+
+```py
+from langchain_openai import ChatOpenAI
+from langchain.memory import ConversationKGMemory
+
+chat = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+)
+
+# max_token_limit은 메모리에 저장할 최대 토큰 수
+memory = ConversationKGMemory(
+    llm=chat,
+    return_messages=True,
+)
+
+def add_message(input, output):
+    memory.save_context({"input": input}, {"output": output})
+
+add_message("HI I am a Lee, I live in South Korea", "Wow that is cool! I am a robot living in the cloud.")
+add_message("Lee likes kimchi", "wow that is cool!")
+
+memory.load_memory_variables({"input": "who is Lee"})
+memory.load_memory_variables({"input": "what does Lee like"})
 ```
 
 ## 4-6. Memory on LLMChain
