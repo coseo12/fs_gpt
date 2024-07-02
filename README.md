@@ -1176,6 +1176,15 @@ invoke_chain("What is my name?")
 
 # 5. RAG
 
+RAG(Retrieval Augmented Generation)의 사용법을 학습하겠습니다.
+
+모델들은 많은 데이터를 통해 학습되지만 개인적인 데이터들에는 때로는 접근할 수 없습니다. 예를 들면 개인 DB나 문서 같은 것들 입니다. 그래서 RAG를 사용합니다.
+
+예를 들어 Foo가 뭐지 라는 질문을 하면 그 질문을 프롬프트에 전달하고 또한 동시에 우리의 질문과 관련이 있는 문서들도 준비하게 됩니다. 저장된 Vector나 검색기를 이용해서 관련 문서를 찾아내는 방법은 이후에 다루겠습니다.
+여기에서는 Vector Space에서 검색하는 방법이나, 의미론적인 뜻을 알아보겠습니다. 다시 돌아가서 모델에게 질문을 하면 기존에 학습된 수 많은 data와 함께 모델이 더 나은 답변을 할 수 있도록 도와주기 위해 추가로 전송한 data까지 갖게 되어있으며 이를 RAG(Retrieval Augmented Generation)라고 합니다. 개인으로부터 제공된 data를 사용하거나 탐색함으로써 능력을 확장시키는 것입니다.
+
+- [공식문서-RAG](https://python.langchain.com/v0.1/docs/integrations/providers/vectara/#vectara-for-retrieval-augmented-generation-rag)
+
 ## 5-1. Data Loaders and Splitters
 
 ## 5-2. Tiktoken
@@ -1193,6 +1202,10 @@ invoke_chain("What is my name?")
 ## 5-8. Map Reduce LCEL Chain
 
 # 6. DOCUMENT GPT
+
+Document GPT App 을 만들어 봅시다. 우선 Jupyter notebook을 활용해 파트별 흐름을 파악한 후에 Streamlit을 학습해보겠습니다.
+
+- [공식문서-Streamlit](https://python.langchain.com/v0.1/docs/integrations/providers/streamlit/)
 
 ## 6-1. Magic
 
