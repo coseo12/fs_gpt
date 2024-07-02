@@ -1132,8 +1132,46 @@ memory.load_memory_variables({})
 
 ## 4-8. LCEL Based Memory
 
-```py
+4-7의 예제를 기반으로 LCEL(LangChain Expresstion Language)을 이용하여 생성된 체인에 메모리를 추가하는 작업을 해보겠습니다.
 
+간단한 예제를 작성해보겠습니다.
+
+```py
+from langchain_openai import ChatOpenAI
+from langchain.memory import ConversationSummaryBufferMemory
+from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate, MessagesPlaceholder
+from langchain.schema.runnable import RunnablePassthrough
+
+chat = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+)
+
+# max_token_limit은 메모리에 저장할 최대 토큰 수
+memory = ConversationSummaryBufferMemory(
+    llm=chat,
+    max_token_limit=120,
+    return_messages=True,
+)
+
+prompt = ChatPromptTemplate.from_messages([
+    SystemMessagePromptTemplate.from_template("You are a helpful AI talking to a human."),
+    MessagesPlaceholder(variable_name="history"), # 많은 메시지들 사이를 구분하기 위한 placeholder
+    HumanMessagePromptTemplate.from_template("{question}"),
+])
+
+def load_memory(_):
+    return memory.load_memory_variables({})["history"]
+
+chain = RunnablePassthrough.assign(history=load_memory) | prompt | chat
+
+def invoke_chain(question):
+    result = chain.invoke({"question": question})
+    memory.save_context({"input": question}, {"output": result.content})
+    return result
+
+invoke_chain("My name is Seo")
+invoke_chain("I live Seoul in South Korea")
+invoke_chain("What is my name?")
 ```
 
 # 5. RAG
