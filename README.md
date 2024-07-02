@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(16%)
+- 진행 중...(17%)
 
 ## Open AI를 위한 요구사항
 
@@ -919,8 +919,26 @@ memory.load_memory_variables({})
 
 ## 4-2. ConversationBufferWindowMemory
 
-```py
+이 메모리는 대화의 특정 부분만을 저장합니다. 예를 들어 최근 대화의 5개의 메시지만 저장한다고하면 6번째 메시지가 추가될때 가장 오래된 메시지는 버려지는 방식입니다. 저장 범위는 자유롭게 설정할 수 있으며 메모리를 특정 크기로 유지할 수 있다는 점이 장점입니다. 단점이라면 챗봇이 전체 대화가 아닌 최근 대화에만 집중한다는 점입니다.
 
+간단한 예제를 작성해보겠습니다.
+
+```py
+from langchain.memory import ConversationBufferWindowMemory
+
+# 쳇 모델 용으로 사용할 경우 return_messages=True로 설정, K는 메모리의 크기
+memory = ConversationBufferWindowMemory(return_messages=True, k=4)
+
+def add_message(input, output):
+    memory.save_context({"input": input}, {"output": output})
+
+add_message(1, 1)
+add_message(2, 2)
+add_message(3, 3)
+add_message(4, 4)
+add_message(5, 5)
+
+memory.load_memory_variables({})
 ```
 
 ## 4-3. ConversationSummaryMemory
