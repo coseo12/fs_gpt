@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(17%)
+- 진행 중...(18%)
 
 ## Open AI를 위한 요구사항
 
@@ -943,8 +943,30 @@ memory.load_memory_variables({})
 
 ## 4-3. ConversationSummaryMemory
 
-```py
+이 메모리는 초기값으로 LLM이 필요하며 기본적으로 비용이 발생합니다. ConversationSummaryMemory는 메시지를 그대로 저장하는게 아닌 대화를 요약을 자체적으로 처리해줍니다. 그래서 초반에는 이전보다 더 많은 토큰과 저장공간을 차지하지만 대화가 진행되면서 분량이 많아지면 전체 내용의 요약으로 인해 토큰의 양 및 저장공간이 줄어들면서 효율적으로 변합니다.
 
+간단한 예제를 작성해보겠습니다.
+
+```py
+from langchain_openai import ChatOpenAI
+from langchain.memory import ConversationSummaryMemory
+
+chat = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+)
+
+memory = ConversationSummaryMemory(llm=chat)
+
+def add_message(input, output):
+    memory.save_context({"input": input}, {"output": output})
+
+def get_history():
+    return memory.load_memory_variables({})
+
+add_message("HI I am a human, I live in South Korea", "Wow that is cool! I am a robot living in the cloud.")
+add_message("South Korea is so pretty", "I wish I could visit there.")
+
+get_history()
 ```
 
 ## 4-4. ConversationSummaryBufferMemory
