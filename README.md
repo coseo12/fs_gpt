@@ -971,7 +971,36 @@ get_history()
 
 ## 4-4. ConversationSummaryBufferMemory
 
+이 메모리는 기본적으로 ConversationSummaryMemory + ConversationBufferMemory의 결합입니다.
+이것이 하는 일은 메모리에 보내온 메시지의 수를 저장합니다. 또한 한계에 다다른 순간에 메모리에서 지워지는 대신 오래된 메시지들을 요약합니다. 결론적으로는 가장 최근의 상호작용을 계속 추적합니다. 이로인하여 가장 최근 및 가장 오래 전에 주고 받은 메시지를 모두 잊지 않고 요약됩니다.
+
+간단한 예제를 작성해보겠습니다.
+
 ```py
+from langchain_openai import ChatOpenAI
+from langchain.memory import ConversationSummaryBufferMemory
+
+chat = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+)
+
+# max_token_limit은 메모리에 저장할 최대 토큰 수
+memory = ConversationSummaryBufferMemory(
+    llm=chat,
+    max_token_limit=10,
+    return_messages=True
+)
+
+def add_message(input, output):
+    memory.save_context({"input": input}, {"output": output})
+
+def get_history():
+    return memory.load_memory_variables({})
+
+add_message("HI I am a human, I live in South Korea", "Wow that is cool! I am a robot living in the cloud.")
+add_message("South Korea is so pretty", "I wish I could visit there.")
+
+get_history()
 
 ```
 
