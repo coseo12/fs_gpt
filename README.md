@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(29%)
+- 진행 중...(30%)
 
 ## Open AI를 위한 요구사항
 
@@ -1273,7 +1273,7 @@ loader.load_and_split(text_splitter=splitter)
 
 ## 5-4. Vectors Store
 
-우선 embedding model에 대해서 알아보겠습니다. 간단히 OpenAI에서 지원하는 내용을 작성해보겠습니다.
+우선 embedding model에 대해서 알아보고 간단히 OpenAI에서 지원하는 내용을 작성해보겠습니다.
 
 아래의 코드를 실행해보면 "Hi"에 관한 Vector값을 볼 수 있습니다. (len함수로 "Hi" Vector의 차원이 1536개 입니다.)
 
@@ -1307,7 +1307,7 @@ vectors
 # len(vectors)
 ```
 
-이제 5-1 예제를 기반으로 실제 문서를 embedding 하겠습니다. 여기에서 중요한 것은 매번 실행될때마다 생성하는 것이 아닌 Vector Store를 통해 Caching 하여 비용을 절감하는 것이 중요합니다. Vector Store에 Vector를 넣어두면 그 내용을 검색할 수 있습니다.
+이제 5-1 예제를 기반으로 실제 문서를 embedding 하겠습니다. 여기에서 중요한 것은 매번 실행될때마다 생성하는 것이 아닌 Vector Store를 통해 Caching 하여 비용을 절감하는 것이 중요하며 Vector Store에 Vector를 넣어두면 그 내용을 검색할 수 있습니다.
 
 Vector Store에는 여러 가지 환경을 제공합니다. 여기에서는 오픈소스 중 하나인 Chroma를 사용하겠습니다.
 
@@ -1373,7 +1373,7 @@ Jupyter notebook을 재실행해주면 LangSmith 대시보드에서 내용을 �
 
 ## 5-6. RetrievalQA
 
-이제 Document Chain을 만들겠습니다. 일단 off-the-shelf chain을 이용하겠습니다. 그 이후에 LCEL 형태의 chain으로 변경하도록 하겠습니다.
+이제 Document Chain을 만들겠습니다. 일단 off-the-shelf chain을 이용하고 이후에 LCEL 형태의 chain으로 변경하도록 하겠습니다.
 
 off-the-shelf 형태의 LLMChain은 이제 Legacy 입니다. 상황에 따라서는 deprecated 될 수 있으니 참고하세요.
 
@@ -1445,7 +1445,7 @@ chain.run("What is Physics?")
 
 ## 5-7. Stuff LCEL Chain
 
-5-6 예제를 기반으로 LCEL Chain으로 변경하겠습니다.
+5-6 예제를 Stuff 기반으로 LCEL Chain으로 변경하겠습니다.
 
 ```py
 from langchain_openai import ChatOpenAI
@@ -1503,8 +1503,95 @@ chain.invoke("What is Physics?")
 
 ## 5-8. Map Reduce LCEL Chain
 
-```py
+5-6 예제를 Map Reduce 기반 LCEL Chain으로 변경하겠습니다.
 
+Map Reduce 방식은 Docuemnt가 많을 수록 유리합니다.
+
+```py
+from langchain_openai import ChatOpenAI
+from langchain.document_loaders import UnstructuredFileLoader
+from langchain.text_splitter import CharacterTextSplitter
+from langchain_openai import OpenAIEmbeddings
+from langchain.embeddings import CacheBackedEmbeddings
+from langchain.vectorstores import Chroma
+from langchain.storage import LocalFileStore
+from langchain.prompts import ChatPromptTemplate
+from langchain.schema.runnable import RunnablePassthrough, RunnableLambda
+
+llm = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+)
+
+# chunk_size - 텍스트를 분할하는 크기
+# chunk_overlap - 분할된 텍스트의 중복 크기
+# separator - 텍스트를 분할하는 구분자
+splitter = CharacterTextSplitter.from_tiktoken_encoder(
+    chunk_size=600,
+    chunk_overlap=100,
+    separator="\n",
+)
+
+loader = UnstructuredFileLoader("./files/chapter_one.pdf")
+
+docs = loader.load_and_split(text_splitter=splitter)
+
+embeddings = OpenAIEmbeddings()
+
+# cache_dir - 캐시 디렉토리
+cache_dir = LocalFileStore("./.cache/")
+
+# 캐시된 임베딩을 사용하여 Vector Store 초기화
+cached_embeddings = CacheBackedEmbeddings.from_bytes_store(
+    embeddings,
+    cache_dir,
+)
+
+# Vector Store 초기화
+vectorstore = Chroma.from_documents(docs, cached_embeddings)
+
+retriver = vectorstore.as_retriever();
+
+map_doc_prompt = ChatPromptTemplate.from_messages([
+    ("system",
+    """
+    Use the following portion of a long document to see if any of the
+    text is relevant to answer the question. Return any relevant text
+    verbatim.
+    """
+    ),
+    ("human", "{question}")
+])
+
+map_doc_chain = map_doc_prompt | llm
+
+def map_docs(inputs):
+    documents = inputs["documents"]
+    question = inputs["question"]
+    return "\n\n".join(
+        map_doc_chain.invoke(
+            {"question": question, "context": doc.page_content}
+        ).content
+        for doc in documents
+    )
+
+map_chain = {"documents": retriver, "question": RunnablePassthrough()} | RunnableLambda(map_docs)
+
+final_prompt = ChatPromptTemplate.from_messages([
+    ('system',
+    """
+    Given the following extracted parts of a long document and a
+    question, create a final answer.
+    If you don't know the answer, just say you don't know. Don't try
+    to make up an anwser.
+    {context}
+    """
+     ),
+     ("human", "{question}")
+])
+
+chain = {"context": map_chain, "question": RunnablePassthrough()} | final_prompt | llm
+
+chain.invoke("What is Physics?")
 ```
 
 # 6. DOCUMENT GPT
