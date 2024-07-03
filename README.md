@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(28%)
+- 진행 중...(29%)
 
 ## Open AI를 위한 요구사항
 
@@ -1445,8 +1445,60 @@ chain.run("What is Physics?")
 
 ## 5-7. Stuff LCEL Chain
 
-```py
+5-6 예제를 기반으로 LCEL Chain으로 변경하겠습니다.
 
+```py
+from langchain_openai import ChatOpenAI
+from langchain.document_loaders import UnstructuredFileLoader
+from langchain.text_splitter import CharacterTextSplitter
+from langchain_openai import OpenAIEmbeddings
+from langchain.embeddings import CacheBackedEmbeddings
+from langchain.vectorstores import Chroma
+from langchain.storage import LocalFileStore
+from langchain.prompts import ChatPromptTemplate
+from langchain.schema.runnable import RunnablePassthrough
+
+llm = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+)
+
+# chunk_size - 텍스트를 분할하는 크기
+# chunk_overlap - 분할된 텍스트의 중복 크기
+# separator - 텍스트를 분할하는 구분자
+splitter = CharacterTextSplitter.from_tiktoken_encoder(
+    chunk_size=600,
+    chunk_overlap=100,
+    separator="\n",
+)
+
+loader = UnstructuredFileLoader("./files/chapter_one.pdf")
+
+docs = loader.load_and_split(text_splitter=splitter)
+
+embeddings = OpenAIEmbeddings()
+
+# cache_dir - 캐시 디렉토리
+cache_dir = LocalFileStore("./.cache/")
+
+# 캐시된 임베딩을 사용하여 Vector Store 초기화
+cached_embeddings = CacheBackedEmbeddings.from_bytes_store(
+    embeddings,
+    cache_dir,
+)
+
+# Vector Store 초기화
+vectorstore = Chroma.from_documents(docs, cached_embeddings)
+
+retriver = vectorstore.as_retriever();
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpfull assistant. Answer questions using only the following context. If you don't know the answer just say you don't knowm, don't make it up:\n{context}"),
+    ("human", "{question}"),
+])
+
+chain = {"context": retriver, "question": RunnablePassthrough()} | prompt | llm
+
+chain.invoke("What is Physics?")
 ```
 
 ## 5-8. Map Reduce LCEL Chain
