@@ -1344,7 +1344,6 @@ cached_embeddings = CacheBackedEmbeddings.from_bytes_store(
     cache_dir,
 )
 
-
 # Vector Store 초기화
 vectorstore = Chroma.from_documents(docs, cached_embeddings)
 
@@ -1354,11 +1353,23 @@ result = vectorstore.similarity_search("what is introduction")
 result
 ```
 
-## 5-5. Langsmith
+## 5-5. LangSmith
 
-```py
+Langsmith란 이 도구를 사용하면 우리의 체인이 무엇을 하고 있는지 시각적으로 확인이 가능합니다.
 
+아래 사이트에서 회원가입해주세요
+
+- [LangSmith](https://www.langchain.com/langsmith)
+
+이후 아래 환경설정을 추가해줍니다.
+
+```env
+LANGCHAIN_TRACING_V2=true
+LANGCHAIN_ENDPOINT="https://api.smith.langchain.com"
+LANGCHAIN_API_KEY="XXXXX..."
 ```
+
+Jupyter notebook을 재실행해주면 LangSmith 대시보드에서 내용을 확인 할 수 있습니다.
 
 ## 5-6. RetrievalQA
 
