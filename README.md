@@ -1218,8 +1218,29 @@ len(loader.load_and_split(text_splitter=splitter))
 
 ## 5-2. Tiktoken
 
-```py
+기본적으로 모든 splitter들은 텍스트의 length를 계산해서 한 덩어리의(chunk) 크기르 알아냅니다. 그 작업에는 파이썬 표준 라이브러리가 지원하는 len함수를 사용합니다. 하지만 LLM들은 Token을 같은 방법으로 처리하지 않습니다.
 
+- [OpenAI - Tokenizer](https://platform.openai.com/tokenizer)
+
+5-1 예제를 내부 토큰화 함수(Tiktoken)를 사용하도록 수정해보겠습니다.
+
+```py
+from langchain_openai import ChatOpenAI
+from langchain.document_loaders import UnstructuredFileLoader
+from langchain.text_splitter import CharacterTextSplitter
+
+# chunk_size - 텍스트를 분할하는 크기
+# chunk_overlap - 분할된 텍스트의 중복 크기
+# separator - 텍스트를 분할하는 구분자
+splitter = CharacterTextSplitter.from_tiktoken_encoder(
+    chunk_size=600,
+    chunk_overlap=100,
+    separator="\n",
+)
+
+loader = UnstructuredFileLoader("./files/chapter_one.pdf")
+
+loader.load_and_split(text_splitter=splitter)
 ```
 
 ## 5-3. Vectors
