@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(25%)
+- 진행 중...(28%)
 
 ## Open AI를 위한 요구사항
 
@@ -1373,8 +1373,74 @@ Jupyter notebook을 재실행해주면 LangSmith 대시보드에서 내용을 �
 
 ## 5-6. RetrievalQA
 
-```py
+이제 Document Chain을 만들겠습니다. 일단 off-the-shelf chain을 이용하겠습니다. 그 이후에 LCEL 형태의 chain으로 변경하도록 하겠습니다.
 
+off-the-shelf 형태의 LLMChain은 이제 Legacy 입니다. 상황에 따라서는 deprecated 될 수 있으니 참고하세요.
+
+Document Chain에는 다양한 생성방식이 존재합니다.
+
+그 중 첫번째로 Stuff 방식을 사용해보겠습니다. Document들로 prompt를 Stuff(채우기)를 하는데 사용한다는 뜻입니다.
+
+두번째는 Map Reduce 방식이 존재하는데 이는 개별적으로 요약작업을 수행하고 각각의 요약본을 LLM에게 전달해 줍니다.
+
+![Model Image](./images/stuff.png)
+
+- [공식문서 - Document Loaders](https://python.langchain.com/v0.1/docs/modules/data_connection/document_loaders/)
+
+- [공식문서 - Stuff](https://python.langchain.com/v0.1/docs/use_cases/summarization/#option-1-stuff)
+
+- [RetrievalQA](https://api.python.langchain.com/en/latest/chains/langchain.chains.retrieval_qa.base.RetrievalQA.html#langchain.chains.retrieval_qa.base.RetrievalQA)
+
+5-4 예제를 기반으로 간단한 예제를 작성해보겠습니다.
+
+```py
+from langchain_openai import ChatOpenAI
+from langchain.document_loaders import UnstructuredFileLoader
+from langchain.text_splitter import CharacterTextSplitter
+from langchain_openai import OpenAIEmbeddings
+from langchain.embeddings import CacheBackedEmbeddings
+from langchain.vectorstores import Chroma
+from langchain.storage import LocalFileStore
+from langchain.chains import RetrievalQA
+
+llm = ChatOpenAI(
+    temperature=0.1, # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+)
+
+# chunk_size - 텍스트를 분할하는 크기
+# chunk_overlap - 분할된 텍스트의 중복 크기
+# separator - 텍스트를 분할하는 구분자
+splitter = CharacterTextSplitter.from_tiktoken_encoder(
+    chunk_size=600,
+    chunk_overlap=100,
+    separator="\n",
+)
+
+loader = UnstructuredFileLoader("./files/chapter_one.pdf")
+
+docs = loader.load_and_split(text_splitter=splitter)
+
+embeddings = OpenAIEmbeddings()
+
+# cache_dir - 캐시 디렉토리
+cache_dir = LocalFileStore("./.cache/")
+
+# 캐시된 임베딩을 사용하여 Vector Store 초기화
+cached_embeddings = CacheBackedEmbeddings.from_bytes_store(
+    embeddings,
+    cache_dir,
+)
+
+# Vector Store 초기화
+vectorstore = Chroma.from_documents(docs, cached_embeddings)
+
+chain = RetrievalQA.from_chain_type(
+    llm=llm,
+    chain_type="stuff", # map_reduce, stuff
+    retriever=vectorstore.as_retriever(),
+)
+
+chain.run("What is Physics?")
 ```
 
 ## 5-7. Stuff LCEL Chain
