@@ -104,3 +104,5 @@ Thumbs.db
 env/
 
 download.sh
+
+.cache/

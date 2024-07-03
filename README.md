@@ -1257,11 +1257,11 @@ loader.load_and_split(text_splitter=splitter)
 
 위 값에서 king - man 을 계산해 보겠습니다. 연산결과가 어떤 단어를 의미할지는 모르지만, 연산은 할 수 있습니다.
 
-- ???: 0.0 | 0.0 | 1.0
+- ???: 0.0 | 0.0 | 1.0 (0.9 - 0.9 | 0.1 - 0.1 | 1.0 - 0.0 )
 
 위 결과로 보면 royal이 됩니다. 다시 royal - woman을 해보겠습니다.
 
-- ???: 0.1 | 0.9 | 1.0
+- ???: 0.1 | 0.9 | 1.0 (0.0 - 0.1 | 0.0 - 0.9 | 0.0 - 1.0 )
 
 다시 위의 결과로 보면 queen이 나오는 것을 확인 할 수 있습니다.
 
@@ -1269,12 +1269,89 @@ loader.load_and_split(text_splitter=splitter)
 
 - [Vector Search Example](https://turbomaze.github.io/word2vecjson/)
 
-- [Gustav Soderstrom](https://www.youtube.com/watch?v=2eWuYf-aZE4)
+- [Gustav Soderstrom - Spotify Vector Search algorithm](https://www.youtube.com/watch?v=2eWuYf-aZE4)
 
 ## 5-4. Vectors Store
 
-```py
+우선 embedding model에 대해서 알아보겠습니다. 간단히 OpenAI에서 지원하는 내용을 작성해보겠습니다.
 
+아래의 코드를 실행해보면 "Hi"에 관한 Vector값을 볼 수 있습니다. (len함수로 "Hi" Vector의 차원이 1536개 입니다.)
+
+```py
+from langchain_openai import OpenAIEmbeddings
+
+embedder = OpenAIEmbeddings()
+
+# Hi의 벡터값을 가져옴
+embedder.embed_query("Hi")
+```
+
+이제 문서에 embed 작업을 해보겠습니다.
+
+```py
+from langchain_openai import OpenAIEmbeddings
+
+embedder = OpenAIEmbeddings()
+
+# 문서의 벡터값을 embedding
+vectors = embedder.embed_documents([
+    "hi",
+    "how",
+    "are",
+    "you longer sentences because"
+])
+
+vectors
+
+# Vector 개수 확인
+# len(vectors)
+```
+
+이제 5-1 예제를 기반으로 실제 문서를 embedding 하겠습니다. 여기에서 중요한 것은 매번 실행될때마다 생성하는 것이 아닌 Vector Store를 통해 Caching 하여 비용을 절감하는 것이 중요합니다. Vector Store에 Vector를 넣어두면 그 내용을 검색할 수 있습니다.
+
+Vector Store에는 여러 가지 환경을 제공합니다. 여기에서는 오픈소스 중 하나인 Chroma를 사용하겠습니다.
+
+```py
+from langchain_openai import ChatOpenAI
+from langchain.document_loaders import UnstructuredFileLoader
+from langchain.text_splitter import CharacterTextSplitter
+from langchain_openai import OpenAIEmbeddings
+from langchain.embeddings import CacheBackedEmbeddings
+from langchain.vectorstores import Chroma
+from langchain.storage import LocalFileStore
+
+# chunk_size - 텍스트를 분할하는 크기
+# chunk_overlap - 분할된 텍스트의 중복 크기
+# separator - 텍스트를 분할하는 구분자
+splitter = CharacterTextSplitter.from_tiktoken_encoder(
+    chunk_size=600,
+    chunk_overlap=100,
+    separator="\n",
+)
+
+loader = UnstructuredFileLoader("./files/chapter_one.pdf")
+
+docs = loader.load_and_split(text_splitter=splitter)
+
+embeddings = OpenAIEmbeddings()
+
+# cache_dir - 캐시 디렉토리
+cache_dir = LocalFileStore("./.cache/")
+
+# 캐시된 임베딩을 사용하여 Vector Store 초기화
+cached_embeddings = CacheBackedEmbeddings.from_bytes_store(
+    embeddings,
+    cache_dir,
+)
+
+
+# Vector Store 초기화
+vectorstore = Chroma.from_documents(docs, cached_embeddings)
+
+# 유사도 검색
+result = vectorstore.similarity_search("what is introduction")
+
+result
 ```
 
 ## 5-5. Langsmith
