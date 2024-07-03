@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(20%)
+- 진행 중...(25%)
 
 ## Open AI를 위한 요구사항
 
@@ -1187,19 +1187,76 @@ RAG(Retrieval Augmented Generation)의 사용법을 학습하겠습니다.
 
 ## 5-1. Data Loaders and Splitters
 
+첫번째로 알아볼 것은 Retrieval입니다. Langchain 안에는 다양한 Document Loader들이 존재하며 지금하려는 것은 전체 문서를 로드하고 분할하고 데이터를 임베드하기 위한 것입니다. 이것을 Retrieval 과정이라 하며 RAG의 첫번째 과정입니다.
+
+- [공식문서-Document Loaders](https://python.langchain.com/v0.1/docs/integrations/document_loaders/)
+
+Source -> Load -> Transform -> Embed -> Store -> Retrieval
+
+어떠한 Source에서 데이터를 Load한 후 데이터를 분할하면서 변환합니다. 다음엔 변환한 데이터를 Embed하여 텍스트에서 컴퓨터가 이해할 수 있는 숫자로 변환합니다. 이를 Store에 저장하고 이후에 특정숫자를 검색합니다.
+
+간단하게 데이터를 불러와 분할해 보겠습니다.
+
+```py
+from langchain_openai import ChatOpenAI
+from langchain.document_loaders import UnstructuredFileLoader
+from langchain.text_splitter import CharacterTextSplitter
+
+# chunk_size - 텍스트를 분할하는 크기
+# chunk_overlap - 분할된 텍스트의 중복 크기
+# separator - 텍스트를 분할하는 구분자
+splitter = CharacterTextSplitter(
+    chunk_size=600,
+    chunk_overlap=100,
+    separator="\n"
+)
+
+loader = UnstructuredFileLoader("./files/chapter_one.pdf")
+
+len(loader.load_and_split(text_splitter=splitter))
+```
+
 ## 5-2. Tiktoken
+
+```py
+
+```
 
 ## 5-3. Vectors
 
+```py
+
+```
+
 ## 5-4. Vectors Store
+
+```py
+
+```
 
 ## 5-5. Langsmith
 
+```py
+
+```
+
 ## 5-6. RetrievalQA
+
+```py
+
+```
 
 ## 5-7. Stuff LCEL Chain
 
+```py
+
+```
+
 ## 5-8. Map Reduce LCEL Chain
+
+```py
+
+```
 
 # 6. DOCUMENT GPT
 
