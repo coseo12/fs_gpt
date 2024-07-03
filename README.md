@@ -1245,9 +1245,31 @@ loader.load_and_split(text_splitter=splitter)
 
 ## 5-3. Vectors
 
-```py
+이제 Embed 작업을 해보겠습니다. 사람이 읽는 텍스트를 컴퓨터가 이해할 수 있는 숫자들로 변환하는 작업으로 더 정확히는 Vectorization작업을 하게 됩니다. (OpenAI는 1000Dimension이상을 가지고 있습니다.)
 
-```
+예를 들어 Masculinity | Femininity | Royalty 라는 3Dimension을 기준으로 해보겠습니다.
+
+- king: 0.9 | 0.1 | 1.0
+- queen: 0.1 | 0.9 | 1.0
+- man: 0.9 | 0.1 | 0.0
+- woman: 0.1 | 0.9 | 0.0
+- royal: 0.0 | 0.0 | 1.0
+
+위 값에서 king - man 을 계산해 보겠습니다. 연산결과가 어떤 단어를 의미할지는 모르지만, 연산은 할 수 있습니다.
+
+- ???: 0.0 | 0.0 | 1.0
+
+위 결과로 보면 royal이 됩니다. 다시 royal - woman을 해보겠습니다.
+
+- ???: 0.1 | 0.9 | 1.0
+
+다시 위의 결과로 보면 queen이 나오는 것을 확인 할 수 있습니다.
+
+이러한 예를 바탕으로 우리는 모든 내용을 숫자형태로 치환한 덕분에 단어들간의 연산이 가능하다는 것을 알 수 있습니다. 또한 우리는 Vector에 대한 Search작업이 가능해집니다. 서로 비슷한 Vector를 찾을 수 있게 되며 이것을 Vector들이 서로 가깝다라고 표현하고 이게 바로 많은 추천 알고리즘들이 작동하는 방식입니다.
+
+- [Vector Search Example](https://turbomaze.github.io/word2vecjson/)
+
+- [Gustav Soderstrom](https://www.youtube.com/watch?v=2eWuYf-aZE4)
 
 ## 5-4. Vectors Store
 
