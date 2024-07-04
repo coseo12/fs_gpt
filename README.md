@@ -1627,9 +1627,59 @@ streamlit run Home.py
 
 ## 6-1. Magic
 
-```py
+- [docs](https://docs.streamlit.io/)
 
+Streamlit에서 중요한 2가지를 먼저 살펴보겠습니다.
+
+그 중 첫번째는 write입니다. 메소드 설명에 보면 Swiss Army knife라고 표현합니다. 이 뜻은 넘겨주는 무엇이든 화면에 나타내주는 메소드입니다.
+
+```py
+# Home.py
+import streamlit as st
+from langchain.prompts import PromptTemplate
+
+# 문자열
+st.write("hello")
+
+# Data Structure
+st.write([1,2,3,4])
+
+# Data dict
+st.write({"x": 1})
+
+# Class
+st.write(PromptTemplate)
+
+p = PromptTemplate.from_template("xxxx")
+
+st.write(p)
 ```
+
+굳이 메소드를 사용하지 않고 Jupyter notebook 처럼 변수만 선언해도 같은 결과가 나옵니다.
+
+```py
+# Home.py
+import streamlit as st
+from langchain.prompts import PromptTemplate
+
+# 문자열
+"hello"
+
+# Data Structure
+[1,2,3,4]
+
+# Data dict
+{"x": 1}
+
+# Class
+PromptTemplate
+
+p = PromptTemplate.from_template("xxxx")
+
+p
+```
+
+멋진 기능이지만 가독성 측면에서 집적적으로 메소드를 선언해서 사용하는 것을 더 추천합니다.
 
 ## 6-2. Data Flow
 
