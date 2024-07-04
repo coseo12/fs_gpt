@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(30%)
+- 진행 중...(31%)
 
 ## Open AI를 위한 요구사항
 
@@ -1596,25 +1596,82 @@ chain.invoke("What is Physics?")
 
 # 6. DOCUMENT GPT
 
-Document GPT App 을 만들어 봅시다. 우선 Jupyter notebook을 활용해 파트별 흐름을 파악한 후에 Streamlit을 학습해보겠습니다.
+Streamlit을 이용해서 Python 코드만으로 멋진 UI를 만들어 보겠습니다. 이전 챕터에서 진행한 Document GPT를 활용하여 Streamlit을 결합해서 멋진 UI가진 챗봇을 만드는게 목표입니다.
 
-- [공식문서-Streamlit](https://python.langchain.com/v0.1/docs/integrations/providers/streamlit/)
+- [Streamlit.io](https://streamlit.io/)
+
+일단 기본적인 환경이 실행되는지 테스트 해보겠습니다.
+
+root경로에 Home.py 파일을 생성하겠습니다.
+
+```py
+# Home.py
+import streamlit as st
+
+st.title("Hello world!")
+
+st.subheader("Welcome to Streamlit!")
+
+st.markdown("""
+    #### I love it!
+""")
+```
+
+Streamlit의 실행을 위해 명령어를 실행합니다.
+
+```zsh
+streamlit run Home.py
+```
+
+웹서버가 정상적으로 동작한다면 우린 기본적인 준비가 끝났습니다.
 
 ## 6-1. Magic
 
+```py
+
+```
+
 ## 6-2. Data Flow
+
+```py
+
+```
 
 ## 6-3. Multi Page
 
+```py
+
+```
+
 ## 6-4. Chat Message
+
+```py
+
+```
 
 ## 6-5. Uploading Documents
 
+```py
+
+```
+
 ## 6-6. Chat History
+
+```py
+
+```
 
 ## 6-7. Chain
 
+```py
+
+```
+
 ## 6-8. Streaming
+
+```py
+
+```
 
 # 7. PRIVATE GPT
 
