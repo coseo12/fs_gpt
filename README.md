@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(32%)
+- 진행 중...(33%)
 
 ## Open AI를 위한 요구사항
 
@@ -1714,8 +1714,41 @@ st.write(value)
 
 ## 6-3. Multi Page
 
-```py
+Streamlit으로 sidebar를 구성하겠습니다. 지금부터 만들어갈 앱을 포토폴리오처럼 만드려면 각각의 페이지가 필요합니다.
 
+간단한 예제로 보여드리겠습니다.
+
+```py
+# Home.py
+import streamlit as st
+
+# Sidebar 생성
+with st.sidebar:
+    st.sidebar.title('Home')
+    st.sidebar.text_input('xxx')
+
+st.title('App')
+
+# Tab bat 생성
+tab_a, tab_b, tab_c = st.tabs(["A", "B", "C"])
+
+with tab_a:
+    st.write('Tab A')
+
+with tab_b:
+    st.write('Tab B')
+
+with tab_c:
+    st.write('Tab C')
+```
+
+이제 본격적으로 페이지를 구성해보겠습니다. 각각의 페이지를 만드는 방법은 간단합니다. pages폴더를 생성 후 하위에 각 페이지 파일들을 생성해 줍니다. 원하는 순서대로 정렬을 하고 싶다면 파일명에 숫자등을 통하여 순서를 정렬해 줍니다.
+
+```py
+# Home.py
+# pages/01_DocumentGPT.py
+# pages/02_QuizGPT.py
+# pages/03_PrivateGPT.py
 ```
 
 ## 6-4. Chat Message
