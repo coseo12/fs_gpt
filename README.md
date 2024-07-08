@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(33%)
+- 진행 중...(35%)
 
 ## Open AI를 위한 요구사항
 
@@ -1753,8 +1753,103 @@ with tab_c:
 
 ## 6-4. Chat Message
 
-```py
+지금부터 chatbot을 만들기 시작하겠습니다.
 
+일단 Home.py에 할 일들을 정리하기 위한 간단한 마크다운을 작성하겠습니다.
+
+```py
+# Home.py
+import streamlit as st
+
+st.set_page_config(
+    page_title="F/S GPT HOME",
+    page_icon="🤖",
+)
+
+st.markdown(
+"""
+# Hello!
+
+Welcome to my F/S GPT!
+
+Here are the apps I made:
+
+- [ ] [DocumentGPT](/DocumentGPT)
+- [ ] [PrivateGPT](/PrivateGPT)
+- [ ] [QuizGPT](/QuizGPT)
+- [ ] [SiteGPT](/SiteGPT)
+- [ ] [MeetingGPT](/MeetingGPT)
+- [ ] [InvestorGPT](/InvestorGPT)
+"""
+)
+```
+
+이제 본격적으로 Langchain을 가져오기 이전에 Streamlit이 가진 Chat element를 사용하는 법을 알아보겠습니다.
+
+```py
+# pages/DocumentGPT.py
+import streamlit as st
+import time
+
+st.set_page_config(
+    page_title="DocumentGPT",
+    page_icon="📜",
+)
+
+st.title('DocumentGPT')
+
+# USER
+with st.chat_message("human"):
+    st.write("Hello, I'm a HUMAN!")
+
+# AI
+with st.chat_message("ai"):
+    st.write("Hello, I'm an AI!")
+
+# Chat message input
+st.chat_input("Send a message to AI")
+
+# 상태 표기 (Loader)
+with st.status("Embedding file...", expanded=True) as status:
+    time.sleep(2)
+    st.write("Getting the file")
+    time.sleep(2)
+    st.write("Embedding the file")
+    time.sleep(2)
+    st.write("Caching the file")
+    status.update(label="Error", state="error")
+```
+
+이제 실제로 메시지를 주고 받는 UI의 기본 구조를 구성해 보겠습니다.
+
+```py
+# pages/DocumentGPT.py
+# 메시지 저장소
+if "messages" not in st.session_state:
+    st.session_state["messages"] = []
+
+# 채팅 메시지 출력
+def send_message(message, role, save=True):
+    with st.chat_message(role):
+        st.write(message)
+    if save:
+        st.session_state["messages"].append({"message": message, "role": role})
+
+# 캐싱한 채팅 메시지 출력
+for message in st.session_state["messages"]:
+    send_message(message["message"], message["role"], save=False)
+
+# 채팅 입력
+message = st.chat_input("Send a message to AI")
+
+# 입력된 채팅 메시지 출력
+if message:
+    send_message(message, 'human')
+    time.sleep(2)
+    send_message(f"You said: {message}", "ai")
+
+    with st.sidebar:
+        st.write(st.session_state)
 ```
 
 ## 6-5. Uploading Documents

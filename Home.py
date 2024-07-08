@@ -5,4 +5,19 @@ st.set_page_config(
     page_icon="🤖",
 )
 
-st.title('F/S GPT HOME')
+st.markdown(
+"""
+# Hello!
+
+Welcome to my F/S GPT!
+
+Here are the apps I made:
+
+- [ ] [DocumentGPT](/DocumentGPT)
+- [ ] [PrivateGPT](/PrivateGPT)
+- [ ] [QuizGPT](/QuizGPT)
+- [ ] [SiteGPT](/SiteGPT)
+- [ ] [MeetingGPT](/MeetingGPT)
+- [ ] [InvestorGPT](/InvestorGPT)           
+"""
+)
