@@ -1852,6 +1852,10 @@ if message:
         st.write(st.session_state)
 ```
 
+위 코드의 실행 화면입니다.
+
+![Model Image](./images/6-4.png)
+
 ## 6-5. Uploading Documents
 
 ```py
