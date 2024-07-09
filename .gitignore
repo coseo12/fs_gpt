@@ -106,3 +106,7 @@ env/
 download.sh
 
 .cache/
+
+.streamlit/
+
+*.toml
