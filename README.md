@@ -2425,6 +2425,12 @@ else:
 
 # 7. PRIVATE GPT
 
+이제 Private GPT를 만들어 보겠습니다. 기존 Document GPT와 동일한 코드이나 임베딩 모델과 LLM모델을 각각 Swap하고 OpenAI를 사용하지 않기 때문에 인터넷을 사용하지 않을 겁니다. 따라서 파일은 컴퓨터에 유지되고 우리 컴퓨터는 embedding을 생성하고 model을 실행합니다.
+
+우선은 Model들을 다운운 받아야합니다. 이 후에는 100% 오프라인으로 동작할 예정입니다.
+
+기존에 Document GPT 파일의 내용을 Private GPT로 그대로 복사합니다. 이후 타이틀을 변경하고 private_files, private_embeddings 폴더를 생성하고 코드에서 경로를 수정합니다.
+
 ## 7-1. HuggingFaceHub
 
 ## 7-2. HuggingFacePipeline

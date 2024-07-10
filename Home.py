@@ -6,14 +6,14 @@ st.set_page_config(
 )
 
 st.markdown(
-"""
+    """
 # Hello!
 
 Welcome to my F/S GPT!
 
 Here are the apps I made:
 
-- [ ] [DocumentGPT](/DocumentGPT)
+- [x] [DocumentGPT](/DocumentGPT)
 - [ ] [PrivateGPT](/PrivateGPT)
 - [ ] [QuizGPT](/QuizGPT)
 - [ ] [SiteGPT](/SiteGPT)
