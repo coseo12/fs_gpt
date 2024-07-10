@@ -8,13 +8,34 @@ from langchain.embeddings import CacheBackedEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
-from langchain.callbacks import StreamingStdOutCallbackHandler
+from langchain.callbacks.base import BaseCallbackHandler
 from langchain.schema.runnable import RunnableLambda, RunnablePassthrough
+
+
+# 콜백 핸들러
+class ChatCallbackHandler(BaseCallbackHandler):
+    # 메시지
+    message = ""
+
+    # llm_start 이벤트
+    def on_llm_start(self, *args, **kwargs):
+        # 메시지 박스 ( 비어있는 위젯 )
+        self.message_box = st.empty()
+
+    # llm_end 이벤트
+    def on_llm_end(self, *args, **kwargs):
+        save_message(self.message, "ai")
+
+    # llm_new_token 이벤트
+    def on_llm_new_token(self, token, *args, **kwargs):
+        self.message += token
+        self.message_box.markdown(self.message)
+
 
 llm = ChatOpenAI(
     temperature=0.1,  # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
     streaming=True,  # streaming 옵션을 활성화하여 대화형 모드로 설정
-    callbacks=[StreamingStdOutCallbackHandler()],  # 콜백 함수를 설정
+    callbacks=[ChatCallbackHandler()],  # 콜백 함수를 설정
 )
 
 st.set_page_config(
@@ -58,12 +79,17 @@ def embed_file(file):
     return retriver
 
 
+# 메시지 저장
+def save_message(message, role):
+    st.session_state["messages"].append({"message": message, "role": role})
+
+
 # 메시지 전송
 def send_message(message, role, save=True):
     with st.chat_message(role):
         st.markdown(message)
     if save:
-        st.session_state["messages"].append({"message": message, "role": role})
+        save_message(message, role)
 
 
 # 이전 메시지 표시
@@ -84,7 +110,7 @@ prompt = ChatPromptTemplate.from_messages(
             "system",
             """ 
             Answer the question using Only the following context, If you don't know the answer 
-            just say you don't know. DON'T make anything up.
+            just say you don't know. DON'T make anything up. but If you ask a question in another language, we will translate the context and process it.
 
             Context: {context}
             """,
@@ -129,8 +155,10 @@ if file:
             | prompt
             | llm
         )
-        # 메시지 전송
-        response = chain.invoke(message)
-        send_message(response.content, "ai")
+
+        with st.chat_message("ai"):
+            # 메시지 전송
+            response = chain.invoke(message)
+
 else:
     st.session_state["messages"] = []
