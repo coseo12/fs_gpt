@@ -6,6 +6,16 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain.embeddings import CacheBackedEmbeddings
 from langchain.vectorstores import Chroma
+from langchain.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
+from langchain.callbacks import StreamingStdOutCallbackHandler
+from langchain.schema.runnable import RunnableLambda, RunnablePassthrough
+
+llm = ChatOpenAI(
+    temperature=0.1,  # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+    streaming=True,  # streaming 옵션을 활성화하여 대화형 모드로 설정
+    callbacks=[StreamingStdOutCallbackHandler()],  # 콜백 함수를 설정
+)
 
 st.set_page_config(
     page_title="DocumentGPT",
@@ -62,6 +72,27 @@ def paint_history():
         send_message(message["message"], message["role"], save=False)
 
 
+# 문서 형식
+def format_docs(docs):
+    return "\n\n".join(document.page_content for document in docs)
+
+
+# 템플릿
+prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            """ 
+            Answer the question using Only the following context, If you don't know the answer 
+            just say you don't know. DON'T make anything up.
+
+            Context: {context}
+            """,
+        ),
+        ("human", "{question}"),
+    ]
+)
+
 st.title("DocumentGPT")
 
 st.markdown(
@@ -82,15 +113,24 @@ with st.sidebar:
     )
 
 if file:
-    rr = embed_file(file)
-
+    retriever = embed_file(file)
     send_message("I'm ready! Ask away!", "ai", save=False)
-
     paint_history()
-
     message = st.chat_input("Ask anything about your file...")
 
     if message:
         send_message(message, "human")
+        # 대화 체인
+        chain = (
+            {
+                "context": retriever | RunnableLambda(format_docs),
+                "question": RunnablePassthrough(),
+            }
+            | prompt
+            | llm
+        )
+        # 메시지 전송
+        response = chain.invoke(message)
+        send_message(response.content, "ai")
 else:
     st.session_state["messages"] = []
