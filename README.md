@@ -2421,7 +2421,7 @@ else:
 
 실행 화면입니다.
 
-![6-8 Image](./images/6-8png)
+![6-8 Image](./images/6-8.png)
 
 # 7. PRIVATE GPT
 
