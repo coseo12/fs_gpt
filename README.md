@@ -2437,7 +2437,7 @@ else:
 
 이번에는 HuggingFaceHub를 이용해보겠습니다. 이곳을 이용하는 방법은 2가지가 있습니다.
 
-첫번째는 HuggingFace Interface API를 사용하는 방법입니다. 이 경우는 실제 HuggingFace Server를 사용(유료)해야 하기 때문에 우리가 현재 원하는 방식은 아닙니다.
+첫번째는 HuggingFace Interface API를 사용하는 방법입니다. 이 경우는 실제 HuggingFace Server를 사용(유료/무료)해야 하기 때문에 우리가 현재 원하는 방식은 아닙니다.
 
 두번째는 실제 모델은 다운로드 받아서 실행하는 방법입니다. 우리가 하려는 방법은 바로 이 두번째 방법입니다.
 
@@ -2450,11 +2450,11 @@ else:
 HUGGINGFACEHUB_API_TOKEN="hf_xxxxx..."
 ```
 
-사용할 모델은 Meta-Llama-3-3-8B-Instruct 또는 mistralai/Mistral-7B-Instruct-v0.3를 사용하겠습니다.
+사용할 모델은 Meta-Llama-3-8B-Instruct 또는 mistralai/Mistral-7B-Instruct-v0.3를 사용하겠습니다.
 
 ⚠️ 저장소에서 사용 승인처리를 반드시 해주어야 해당 모델 사용이 가능합니다.
 
-- [Meta-Llama-3-3-8B-Instruct](https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct)
+- [Meta-Llama-3-8B-Instruct](https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct)
 - [mistralai/Mistral-7B-Instruct-v0.3](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3)
 
 잠시 Jupyter Notebook으로 돌아가겠습니다. API 형태로의 사용예제를 우선 작성해 보겠습니다.
@@ -2480,8 +2480,31 @@ chain.invoke({"word": "potato"})
 
 ## 7-2. HuggingFacePipeline
 
-```py
+이제 실제 모델을 다운로드하여 로컬에서 실행되도록 구성해보겠습니다. 모델에 종류나 사용가능한 GPU 여부에 따라 여러 변수들이 존재합니다.
 
+7-1에서 사용한 모델은 크기가 너무 크기 때문에 여기서는 규모가 작은 모델(GPT-2)을 사용하겠습니다.
+
+- [GPT-2](https://huggingface.co/openai-community/gpt2)
+
+아래 예제를 작성해보겠습니다.
+
+```py
+from langchain.llms import HuggingFacePipeline
+from langchain.prompts import PromptTemplate
+
+prompt = PromptTemplate.from_template("A {word} is a")
+
+llm = HuggingFacePipeline.from_model_id(
+    model_id="openai-community/gpt2",
+    task="text-generation",
+    pipeline_kwargs={
+        "max_new_tokens": 50,
+    },
+)
+
+chain = prompt | llm
+
+chain.invoke({"word": "potato"})
 ```
 
 ## 7-3. GPT4ALL
