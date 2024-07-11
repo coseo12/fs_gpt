@@ -2475,7 +2475,7 @@ llm = HuggingFaceHub(
 
 chain = prompt | llm
 
-chain.invoke({"word": "potate"})
+chain.invoke({"word": "potato"})
 ```
 
 ## 7-2. HuggingFacePipeline
