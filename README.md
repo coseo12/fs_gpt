@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(40%)
+- 진행 중...(42%)
 
 ## Open AI를 위한 요구사항
 
@@ -2509,8 +2509,32 @@ chain.invoke({"word": "potato"})
 
 ## 7-3. GPT4ALL
 
-```py
+- [GPT4ALL](https://www.nomic.ai/gpt4all)
 
+GPT4ALL은 로컬에서 모델을 실행하는 또 다른 방법이며, 매우 훌륭합니다.
+
+로컬 모델과 함께 할 수 있는 UI APP을 가지고 있으며 ChatGPT와 매우 흡사한 구성을 가지고 있습니다.
+또한 미세조정을 할 수 있는 모델들을 유지하고 있습니다.
+
+아래 LIB를 설치 후 GPT4ALL은 APP에서 관련 모델을 다운로드 해주세요
+
+```zsh
+pip install gpt4all
+```
+
+간단한 예제를 작성해 보겠습니다.
+
+```py
+from langchain_community.llms import GPT4All
+from langchain.prompts import PromptTemplate
+
+prompt = PromptTemplate.from_template("A {word} is a")
+
+llm = GPT4All(model="./gpt4all-falcon-q4_0.gguf", n_threads=1)
+
+chain = prompt | llm
+
+chain.invoke({"word": "tomato"})
 ```
 
 ## 7-4. Ollama
