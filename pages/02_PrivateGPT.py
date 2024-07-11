@@ -3,11 +3,10 @@ from langchain.document_loaders import UnstructuredFileLoader
 from langchain.storage import LocalFileStore
 from langchain.document_loaders import UnstructuredFileLoader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
-from langchain.embeddings import CacheBackedEmbeddings
+from langchain.embeddings import CacheBackedEmbeddings, OllamaEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI
+from langchain_community.llms import Ollama
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.schema.runnable import RunnableLambda, RunnablePassthrough
 
@@ -32,9 +31,10 @@ class ChatCallbackHandler(BaseCallbackHandler):
         self.message_box.markdown(self.message)
 
 
-llm = ChatOpenAI(
+llm = Ollama(
+    model="llama3:latest",  # 모델 선택
     temperature=0.1,  # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
-    streaming=True,  # streaming 옵션을 활성화하여 대화형 모드로 설정
+    # streaming=True,  # streaming 옵션을 활성화하여 대화형 모드로 설정 (Ollama에서는 지원하지 않음)
     callbacks=[ChatCallbackHandler()],  # 콜백 함수를 설정
 )
 
@@ -67,7 +67,7 @@ def embed_file(file):
     )
     loader = UnstructuredFileLoader(file_path)
     docs = loader.load_and_split(text_splitter=splitter)
-    embeddings = OpenAIEmbeddings()
+    embeddings = OllamaEmbeddings(model="llama3:latest")
     # 캐시된 임베딩을 사용하여 Vector Store 초기화
     cached_embeddings = CacheBackedEmbeddings.from_bytes_store(
         embeddings,
@@ -104,19 +104,13 @@ def format_docs(docs):
 
 
 # 템플릿
-prompt = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-            """ 
-            Answer the question using Only the following context, If you don't know the answer 
-            just say you don't know. DON'T make anything up. but If you ask a question in another language, we will translate the context and process it.
+prompt = ChatPromptTemplate.from_template(
+    """Answer the question using Only the following context, If you don't know the answer 
+    just say you don't know. DON'T make anything up. but If you ask a question in another language, we will translate the context and process it.
 
-            Context: {context}
-            """,
-        ),
-        ("human", "{question}"),
-    ]
+    Context: {context}
+    Question: {question}
+    """
 )
 
 st.title("PrivateGPT")
