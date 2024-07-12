@@ -2,10 +2,16 @@ import streamlit as st
 from langchain.retrievers import WikipediaRetriever
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.document_loaders import UnstructuredFileLoader
+from langchain_openai import ChatOpenAI
 
 st.set_page_config(
     page_title="QuizGPT",
     page_icon="🧐",
+)
+
+llm = ChatOpenAI(
+    temperature=0.1,  # temperature - 다양성을 조절하는 매개변수
+    model="gpt-3.5-turbo-1106",  # model - 사용할 모델
 )
 
 
@@ -36,6 +42,7 @@ def split_file(file):
 st.title("QuizGPT")
 
 with st.sidebar:
+    docs = None
     choice = st.selectbox("Choose what you want to use", ("File", "Wikipedia Article"))
 
     if choice == "File":
@@ -52,3 +59,17 @@ with st.sidebar:
             with st.status("Searching wikipedia..."):
                 # Wikipedia에서 관련 문서를 가져옴
                 docs = retriever.get_relevant_documents(topic)
+
+if not docs:
+    st.markdown(
+        """
+    Welcome to QuizGPT.
+
+    I Will mak a quiz from Wikipedia article or files you upload to test 
+    your knowledge and help you study.
+    
+    Get started by uploading a file or searching on Wikipedia in the sidebar.
+    """
+    )
+else:
+    st.write(docs)

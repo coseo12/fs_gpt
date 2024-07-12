@@ -135,7 +135,12 @@ Upload your files on the sidebar.
 with st.sidebar:
     # 파일 업로드
     file = st.file_uploader(
-        "Upload a .txt .pdf or .docx file", type=["pdf", "txt", "docx"]
+        "Upload a .txt .pdf or .docx file",
+        type=[
+            "pdf",
+            "txt",
+            "docx",
+        ],
     )
 
 if file:
