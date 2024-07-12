@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(44%)
+- 진행 중...(45%)
 
 ## Open AI를 위한 요구사항
 
@@ -2825,6 +2825,12 @@ with st.sidebar:
                 # Wikipedia에서 관련 문서를 가져옴
                 docs = retriever.get_relevant_documents(topic)
 ```
+
+실행결과 입니다.
+
+![8-1-1 Image](./images/8-1-1.png)
+
+![8-1-2 Image](./images/8-1-2.png)
 
 ## 8-2. GPT4-Turbo
 
