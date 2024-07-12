@@ -223,6 +223,23 @@ def split_file(file):
     return docs
 
 
+# 퀴즈 실행
+@st.cache_data(show_spinner="Making quiz...")
+def run_quiz_chain(_docs, topic):
+    chain = {"context": questions_chain} | formatting_chain | output_parser
+    return chain.invoke(_docs)
+
+
+# 위키백과 검색
+@st.cache_data(show_spinner="Searching Wikipedia...")
+def wiki_search(term):
+    # top_k_results - Wikipedia에서 가져올 결과의 수
+    retriever = WikipediaRetriever(top_k_results=5)
+    # Wikipedia에서 관련 문서를 가져옴
+    docs = retriever.get_relevant_documents(term)
+    return docs
+
+
 st.title("QuizGPT")
 
 with st.sidebar:
@@ -238,11 +255,8 @@ with st.sidebar:
     else:
         topic = st.text_input("Search Wikipedia...")
         if topic:
-            # top_k_results - Wikipedia에서 가져올 결과의 수
-            retriever = WikipediaRetriever(top_k_results=5)
-            with st.status("Searching wikipedia..."):
-                # Wikipedia에서 관련 문서를 가져옴
-                docs = retriever.get_relevant_documents(topic)
+            docs = wiki_search(topic)
+
 
 if not docs:
     st.markdown(
@@ -260,7 +274,4 @@ else:
     start = st.button("Generate Quiz")
 
     if start:
-        chain = {"context": questions_chain} | formatting_chain | output_parser
-        response = chain.invoke(docs)
-
-        st.write(response)
+        st.write(run_quiz_chain(docs, topic if topic else file.name))
