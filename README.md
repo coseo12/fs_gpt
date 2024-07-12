@@ -2760,21 +2760,120 @@ Function Calling은 유용한 기능이며 우리가 만든 함수가 어떻게 
 
 ## 8-1. WikipediaRetriever
 
+WikipediaRetriever는 특정 질문이나 키워드에 대한 정보를 검색하고, 그 결과를 가져오기 위해 위키백과(Wikipedia)를 조회하는 기능을 수행하는 도구입니다
+
+사이드바에 몇가지 기능을 추가하면서 시작해보겠습니다. 우선 업로드한 파일 또는 Wikipedia에서 가져올지를 선택하는 기능를 추가하겠습니다.
+
+파일을 업로드 하는 부분에서는 이전처럼 embedding 하지 않도록 수정하겠습니다. 단 파일은 Cache하기 때문에 폴더를 생성해 줍니다.
+
+예제는 아래와 같습니다.
+
+```py
+# pages/QuizGPT.py
+import streamlit as st
+from langchain.retrievers import WikipediaRetriever
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.document_loaders import UnstructuredFileLoader
+
+st.set_page_config(
+    page_title="QuizGPT",
+    page_icon="🧐",
+)
+
+
+# 파일 처리
+@st.cache_resource(
+    show_spinner="Loading file...",
+)
+def split_file(file):
+    file_content = file.read()
+    file_path = f"./.cache/quiz_files/{file.name}"
+
+    with open(file_path, "wb") as f:
+        f.write(file_content)
+
+    # chunk_size - 텍스트를 분할하는 크기
+    # chunk_overlap - 분할된 텍스트의 중복 크기
+    # separator - 텍스트를 분할하는 구분자
+    splitter = CharacterTextSplitter.from_tiktoken_encoder(
+        chunk_size=600,
+        chunk_overlap=100,
+        separator="\n",
+    )
+    loader = UnstructuredFileLoader(file_path)
+    docs = loader.load_and_split(text_splitter=splitter)
+    return docs
+
+
+st.title("QuizGPT")
+
+with st.sidebar:
+    choice = st.selectbox("Choose what you want to use", ("File", "Wikipedia Article"))
+
+    if choice == "File":
+        file = st.file_uploader(
+            "Upload a .docx, .txt or .pdf file", type=["docx", "pdf", "txt"]
+        )
+        if file:
+            docs = split_file(file)
+    else:
+        topic = st.text_input("Search Wikipedia...")
+        if topic:
+            # top_k_results - Wikipedia에서 가져올 결과의 수
+            retriever = WikipediaRetriever(top_k_results=5)
+            with st.status("Searching wikipedia..."):
+                # Wikipedia에서 관련 문서를 가져옴
+                docs = retriever.get_relevant_documents(topic)
+```
+
 ## 8-2. GPT4-Turbo
+
+```py
+# pages/QuizGPT.py
+
+```
 
 ## 8-3. Questions Prompt
 
+```py
+# pages/QuizGPT.py
+
+```
+
 ## 8-4. Formatter Prompt
+
+```py
+# pages/QuizGPT.py
+
+```
 
 ## 8-5. Output Parser
 
+```py
+# pages/QuizGPT.py
+
+```
+
 ## 8-6. Caching
+
+```py
+# pages/QuizGPT.py
+
+```
 
 ## 8-7. Grading Questions
 
+```py
+# pages/QuizGPT.py
+
+```
+
 ## 8-8. Function Calling
 
-## 8-9. Conclusions
+```py
+# pages/QuizGPT.py
+
+```
 
 # 9. SITE GPT
 
