@@ -4199,10 +4199,80 @@ else:
 
 ## 8-8. Function Calling
 
-```py
-# pages/QuizGPT.py
+이제 Function Calling의 대해서 알아보겠습니다. 이 기능은 GPT3.5 GPT4에서만 작동합니다.
 
+Jupyter Notebook으로 잠시 돌아가보겠습니다. 간단한 프롬프트를 작성 후 실행해 보겠습니다.
+
+```py
+from langchain_openai import ChatOpenAI
+from langchain.prompts import PromptTemplate
+
+llm = ChatOpenAI(
+    temperature=0.1 # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+)
+
+prompt = PromptTemplate.from_template("Who is the weather in {city}")
+
+chain = prompt | llm
+
+chain.invoke({"city": "Seoul"})
 ```
+
+위 코드를 실행해보면 실시간으로 데이터를 실행할 수 없다고 답합니다.
+
+이를 실시간 데이터를 가져올 수 있는 함수가 있다는 가정하에 함수를 작성해서 모델이 판단하여 함수를 실행시켜 그 결과로 답을 할 수 있도록 수정해보겠습니다.
+
+```py
+# 8-8. Function Calling
+from langchain_openai import ChatOpenAI
+from langchain.prompts import PromptTemplate
+import json
+
+# 날씨 함수 정의
+def get_weather(lon, lat):
+    print(f"Call an API...{lon}, {lat}")
+
+# 날씨 함수 스키마
+function = {
+    "name": "get_weather",
+    "description": "function that takes longitude and latitude to find the weather of a place",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "lon": {"type": "string", "description": "The longitue coordinate"},
+            "lat": {"type": "string", "description": "The latitude coordinate"},
+        },
+    },
+    "required": ["lon", "lat"]
+}
+
+llm = ChatOpenAI(
+    temperature=0.1  # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+).bind(
+    function_call="auto",  # 자동으로 함수 호출
+    functions=[function],  # 함수 정의
+)
+
+# 템플릿 생성
+prompt = PromptTemplate.from_template("Who is the weather in {city}")
+
+# 체인 생성
+chain = prompt | llm
+
+# 체인 실행
+response = chain.invoke({"city": "Seoul"})
+
+# 함수 호출
+response = response.additional_kwargs["function_call"]["arguments"]
+
+# JSON 파싱
+r = json.loads(response)
+
+# 함수 호출
+get_weather(**r)
+```
+
+우리는 위 코드를 통해서 LLM이 이전처럼 처리할 수 없음이 아닌 정보를 가져올 수 있다는 함수가 존재함을 인지하고 관련 인자값을 전달해 줍니다. 이를 가지고 함수를 실행함으로써 우리는 현재 도시의 날씨를 알 수 있습니다.
 
 # 9. SITE GPT
 
