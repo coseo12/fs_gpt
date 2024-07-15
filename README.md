@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(50%)
+- 진행 중...(52%)
 
 ## Open AI를 위한 요구사항
 
@@ -4287,15 +4287,126 @@ Map Re-Rank 방식은 우선 LLM에게 개별 document만 이용하여 답변을
 
 ## 9-1. AsyncChromiumLoader
 
+사이드바에서 URL을 입력받고 입력받은 웹사이트로부터 데이터를 얻은 후 웹사이트의 모든 data, text를 스크랩 해보겠습니다.
+
+HTML 파일을 가져온 후, HTML 코드를 정리해서 text만 추출해보겠습니다. 이 작업을 위한 방법으로는 2가지가 있습니다.
+
+첫번째 방법은 playwright와 chrominum을 사용하는 방법입니다. browser control을 할 수 있는 package입니다. selenium이랑 비슷하다고 할 수 있습니다. 이 도구는 많은 양의 javascript 코드가 있는 웹사이트로 부터 data를 추출할 때 사용합니다. LangChain Intergration을 통해서 간편하게 사용할 수 있습니다.
+
+두번째 방법은 Sitemap loader을 이용하여 각 웹사이트의 sitemap을 읽는 방법입니다. 모두는 아니지만 sitemap을 가지고 있는 웹사이트들이 존재합니다. 이를 확인해보면 URL의 모든 디렉토리를 볼 수 있습니다. sitemap을 활용하면 웹사이트에 존재하는 모든 페이지의 url을 찾아낼 수 있습니다.
+
+정리하면 대상 웹사이트에 sitemap이 없거나, javascript가 load되는 것을 기다려야하는 경우엔 첫번째 방법을 사용합니다. 이런 아주 동적인(dynamic) 웹사이트에서는 playwright와 chrominum 사용합니다. 그 외 sitemap이 존재하거나 정적인(static) 웹사이트에서는 두번째 방법을 이용합니다.
+
+첫번째 방법을 사용해보겠습니다. 특정페이지에서 데이터를 가져와보도록 하겠습니다. (⚠️ playwright install을 실행해주세요)
+
+```py
+# pages/SiteGPT.py
+import streamlit as st
+from langchain.document_loaders import AsyncChromiumLoader
+
+st.set_page_config(
+    page_title="SiteGPT",
+    page_icon="🌏",
+)
+
+st.title("SiteGPT")
+
+st.markdown(
+    """
+    Ask questions about the content of a website.
+
+    Start by writing the URL of the website on the sidebar.
+    """
+)
+
+with st.sidebar:
+    url = st.text_input("Write down a URL", placeholder="https://www.example.com")
+
+
+if url:
+    # Load the website
+    loader = AsyncChromiumLoader([url])
+    docs = loader.load()
+    st.write(docs)
+```
+
+위 코드를 실행하면 아래와 같이 HTML 데이터의 모습을 볼 수 있습니다.
+
+![9-1-1 Image](./images/9-1-1.png)
+
+이제 가져온 HTML 데이터를 문자열로 변환해보겠습니다.
+
+```py
+# pages/SiteGPT.py
+import streamlit as st
+from langchain.document_loaders import AsyncChromiumLoader
+from langchain.document_transformers import Html2TextTransformer
+
+st.set_page_config(
+    page_title="SiteGPT",
+    page_icon="🌏",
+)
+
+st.title("SiteGPT")
+
+# Transformer to convert HTML to text
+html2text_transformer = Html2TextTransformer()
+
+st.markdown(
+    """
+    Ask questions about the content of a website.
+
+    Start by writing the URL of the website on the sidebar.
+    """
+)
+
+with st.sidebar:
+    url = st.text_input("Write down a URL", placeholder="https://www.example.com")
+
+
+if url:
+    # Load the website
+    loader = AsyncChromiumLoader([url])
+    docs = loader.load()
+    # Transform the HTML to text
+    transformed = html2text_transformer.transform_documents(docs)
+    st.write(docs)
+
+```
+
+위 코드를 실행하면 아래와 같은 변환된 문자열의 모습을 볼 수 있습니다.
+
+![9-1-2 Image](./images/9-1-2.png)
+
 ## 9-2. SitemapLoader
+
+```py
+
+```
 
 ## 9-3. Parsing Function
 
-## 9-4. Map Re Rank Chain
+```py
+
+```
+
+## 9-4. Map Re Rank Chain part One
+
+```py
+
+```
 
 ## 9-5. Map Re Rank Chain part Two
 
+```py
+
+```
+
 ## 9-6. Code Challenge
+
+```py
+
+```
 
 # 10. MEETING GPT
 

@@ -40,7 +40,7 @@ llm = Ollama(
 
 st.set_page_config(
     page_title="PrivateGPT",
-    page_icon="📃",
+    page_icon="🔒",
 )
 
 
