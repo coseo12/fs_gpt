@@ -1,10 +1,9 @@
 import streamlit as st
 from langchain.document_loaders import UnstructuredFileLoader
 from langchain.storage import LocalFileStore
-from langchain.document_loaders import UnstructuredFileLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.embeddings import CacheBackedEmbeddings, OllamaEmbeddings
-from langchain.vectorstores import Chroma
+from langchain.vectorstores.faiss import FAISS
 from langchain.prompts import ChatPromptTemplate
 from langchain_community.llms import Ollama
 from langchain.callbacks.base import BaseCallbackHandler
@@ -74,7 +73,7 @@ def embed_file(file):
         cache_dir,
     )
     # Vector Store 초기화
-    vectorstore = Chroma.from_documents(docs, cached_embeddings)
+    vectorstore = FAISS.from_documents(docs, cached_embeddings)
     retriver = vectorstore.as_retriever()
     return retriver
 
@@ -106,7 +105,8 @@ def format_docs(docs):
 # 템플릿
 prompt = ChatPromptTemplate.from_template(
     """Answer the question using Only the following context, If you don't know the answer 
-    just say you don't know. DON'T make anything up. but If you ask a question in another language, we will translate the context and process it.
+    just say you don't know. DON'T make anything up.
+    If you ask a question in not english, we will translate the context and process it.
 
     Context: {context}
     Question: {question}

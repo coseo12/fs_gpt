@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(52%)
+- 진행 중...(54%)
 
 ## Open AI를 위한 요구사항
 
@@ -2583,10 +2583,9 @@ langchain에서는 ollama를 위한 wrapper를 가지고 있습니다. 수동적
 import streamlit as st
 from langchain.document_loaders import UnstructuredFileLoader
 from langchain.storage import LocalFileStore
-from langchain.document_loaders import UnstructuredFileLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.embeddings import CacheBackedEmbeddings, OllamaEmbeddings
-from langchain.vectorstores import Chroma
+from langchain.vectorstores.faiss import FAISS
 from langchain.prompts import ChatPromptTemplate
 from langchain_community.llms import Ollama
 from langchain.callbacks.base import BaseCallbackHandler
@@ -2622,7 +2621,7 @@ llm = Ollama(
 
 st.set_page_config(
     page_title="PrivateGPT",
-    page_icon="📃",
+    page_icon="🔒",
 )
 
 
@@ -2656,7 +2655,7 @@ def embed_file(file):
         cache_dir,
     )
     # Vector Store 초기화
-    vectorstore = Chroma.from_documents(docs, cached_embeddings)
+    vectorstore = FAISS.from_documents(docs, cached_embeddings)
     retriver = vectorstore.as_retriever()
     return retriver
 
@@ -4434,9 +4433,89 @@ if url:
 
 ## 9-3. Parsing Function
 
-```py
+Parsing Function을 통해서 데이터를 정제 할 수 있습니다. 내부에서 beautifulsoup을 사용합니다. 이를 이용하여 데이터 정제 및 문자열을 분리해보겠습니다.
 
+- [Beautifulsoup](https://www.crummy.com/software/BeautifulSoup/)
+
+9-2의 예제를 기반으로 내용을 필터링 해보겠습니다.
+
+```py
+# pages/SiteGPT.py
+import streamlit as st
+from langchain.document_loaders import SitemapLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+
+def parse_page(soup):
+    header = soup.find("header")
+    footer = soup.find("footer")
+    if header:
+        header.decompose()
+    if footer:
+        footer.decompose()
+    return str(soup.get_text()).replace("\n", " ").replace("\xa0", " ")
+
+
+# Load the website
+@st.cache_data(show_spinner="Loading...website")
+def load_website(url):
+    # splitter - 텍스트를 분할하는 방법
+    # chunk_size - 텍스트를 분할하는 크기
+    # chunk_overlap - 분할된 텍스트의 중복 크기
+    splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+        chunk_size=1000,
+        chunk_overlap=200,
+    )
+    # Load the website
+    # filter_urls - 필터링할 URL
+    # parsing_function - 파싱 함수
+    loader = SitemapLoader(
+        url,
+        filter_urls=[
+            # "https://openai.com/index/data-partnerships",
+            r"^(.*\/index\/).*",
+        ],
+        parsing_function=parse_page,
+    )
+    loader.requests_per_second = 5
+    docs = loader.load_and_split(text_splitter=splitter)
+    return docs
+
+
+st.set_page_config(
+    page_title="SiteGPT",
+    page_icon="🌏",
+)
+
+st.title("SiteGPT")
+
+
+st.markdown(
+    """
+    Ask questions about the content of a website.
+
+    Start by writing the URL of the website on the sidebar.
+    """
+)
+
+with st.sidebar:
+    url = st.text_input("Write down a URL", placeholder="https://www.example.com")
+
+
+if url:
+    # Check if the URL is a SiteMap
+    if ".xml" not in url:
+        with st.sidebar:
+            st.error("Please write down a SiteMap URL")
+    else:
+        # Load the SiteMap
+        docs = load_website(url)
+        st.write(docs)
 ```
+
+실행결과 입니다.
+
+![9-3-1 Image](./images/9-3-1.png)
 
 ## 9-4. Map Re Rank Chain part One
 
