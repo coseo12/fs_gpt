@@ -4376,7 +4376,7 @@ if url:
 
 위 코드를 실행하면 아래와 같은 변환된 문자열의 모습을 볼 수 있습니다.
 
-![9-1-2 Image](./images/9-1-2.png)
+![9-1-3 Image](./images/9-1-3.png)
 
 ## 9-2. SitemapLoader
 
