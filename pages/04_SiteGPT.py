@@ -30,4 +30,4 @@ if url:
     docs = loader.load()
     # Transform the HTML to text
     transformed = html2text_transformer.transform_documents(docs)
-    st.write(docs)
+    st.write(transformed)
