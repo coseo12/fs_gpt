@@ -4380,9 +4380,57 @@ if url:
 
 ## 9-2. SitemapLoader
 
-```py
+Sitemap loader를 사용하도록 변경해보겠습니다.
 
+```py
+# pages/SiteGPT.py
+import streamlit as st
+from langchain.document_loaders import SitemapLoader
+
+
+# Load the website
+@st.cache_data(show_spinner="Loading...website")
+def load_website(url):
+    loader = SitemapLoader(url)
+    loader.requests_per_second = 5
+    docs = loader.load()
+    return docs
+
+
+st.set_page_config(
+    page_title="SiteGPT",
+    page_icon="🌏",
+)
+
+st.title("SiteGPT")
+
+
+st.markdown(
+    """
+    Ask questions about the content of a website.
+
+    Start by writing the URL of the website on the sidebar.
+    """
+)
+
+with st.sidebar:
+    url = st.text_input("Write down a URL", placeholder="https://www.example.com")
+
+
+if url:
+    # Check if the URL is a SiteMap
+    if ".xml" not in url:
+        with st.sidebar:
+            st.error("Please write down a SiteMap URL")
+    else:
+        # Load the SiteMap
+        docs = load_website(url)
+        st.write(docs)
 ```
+
+위 코드를 실행해보면 아래와 같은 화면을 얻게 됩니다.
+
+![9-2-1 Image](./images/9-2-1.png)
 
 ## 9-3. Parsing Function
 
