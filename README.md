@@ -4276,6 +4276,15 @@ get_weather(**r)
 
 # 9. SITE GPT
 
+이제 SITE GPT 페이지를 작업해보겠습니다. 이 곳에서는 웹사이트를 스크랩하는 기능을 중점적으로 다루어 보겠습니다.
+
+스크랩한 정보를 기반으로 질문할 수도 있으며, 출처를 인용할 수도 있습니다. 또한 그 출처로 이동해서 정보가 사실인지 아닌지 확인도 할 수 있습니다.
+
+우리는 LangChain Intergration을 통해 웹사이트로부터 데이터를 얻고 그 데이터를 정리하는 법을 배우게 될 것 입니다. 그리고 Map Re-Rank라는 또다른 타입의 Document chain을 구현해보겠습니다. 기존에는 주로 Stuff Chain 방식을 사용해왔습니다. Stuff Chain은 모든 query와 관련된 모든 document를 prompt로 전달하며 LLM은 그 prompt의 context를 기반으로 답변을 생성합니다. 또 Map reduce 방식도 알아보았습니다.
+각 document를 살펴보면서, 가능한 경우, 개별 document에 대한 답변을 생성하고 마지막 최종답변이 어떠한지 확인했습니다.
+
+Map Re-Rank 방식은 우선 LLM에게 개별 document만 이용하여 답변을 생성하고 각 응답을 평가합니다. 그리고 모든 응답이 생성되면 가장 높은 점수를 받은 응답을 사용자에게 반환합니다.
+
 ## 9-1. AsyncChromiumLoader
 
 ## 9-2. SitemapLoader
