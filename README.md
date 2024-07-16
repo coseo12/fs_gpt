@@ -5028,16 +5028,13 @@ import glob
 # Get Audio to Text
 def transcribe_chunks(chunk_path, destination):
     files = glob.glob(f"{chunk_path}/*.mp3")
-    final_transcript = ""
     for file in files:
-        with open(file, "rb") as audio_file:
+        with open(file, "rb") as audio_file, open(destination, "a") as text_file:
             # transcribe audio
             transcript = openai.audio.transcriptions.create(
                 model="whisper-1", file=open(audio_file.name, "rb"), language="en"
             )
-            final_transcript += transcript.text
-    with open(destination, "w") as file:
-        file.write(final_transcript)
+            text_file.write(transcript.text)
 
 transcribe_chunks("./files/chunks", "./files/transcript.txt")
 ```
