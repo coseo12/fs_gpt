@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(55%)
+- 진행 중...(56%)
 
 ## Open AI를 위한 요구사항
 
@@ -4940,26 +4940,62 @@ if url:
 
 ## 9-6. Code Challenge
 
-```py
-# pages/SiteGPT.py
-
-```
+9-5 까지의 예제를 기반으로 챗봇형태로 만들어보기 (준비중...)
 
 # 10. MEETING GPT
 
+이제 MeetingGPT 페이지를 구성해보겠습니다. 이 곳에서는 회의 영상이나, 사람들이 대화하는 팟캐스트를 업로드 할 수 있습니다. 사용자는 대화의 요약본을 얻게되며 대화중에 어떠한 일이 일어났는지 질문할 수도 있습니다.
+
+우리가 할 일은 사용자가 동영상을 업로드하면 영상부분을 제거 후 오디오만 추출합니다. 해당 오디오를 10분 단위로 분할해서 해당 오디오를 OpenAI API를 이용하여 Whisper Model에 입력합니다. Whisper Model은 대화를 받아적고 그 내용을 우리에게 넘겨줍니다. 이 내용에 Chain을 구현하여 전체 대화의 내용을 요약하도록 하고 문서를 embed한 다음에 사용자가 다른 chain을 실행하도록 할 수 있습니다. 예를들어 Stuff, Map reduce, Map rerank 같은 Chain을 의미합니다.
+
 ## 10-1. Audio Extraction
+
+```py
+# pages/MeetingGPT.py
+
+```
 
 ## 10-2. Cutting The Audio
 
+```py
+# pages/MeetingGPT.py
+
+```
+
 ## 10-3. Whisper Transcript
+
+```py
+# pages/MeetingGPT.py
+
+```
 
 ## 10-4. Upload UI
 
+```py
+# pages/MeetingGPT.py
+
+```
+
 ## 10-5. Refine Chain Plan
+
+```py
+# pages/MeetingGPT.py
+
+```
 
 ## 10-6. Refine Chain
 
+```py
+# pages/MeetingGPT.py
+
+```
+
 ## 10-7. Q&A Tab
+
+```py
+# pages/MeetingGPT.py
+
+```
 
 # 11. INVEST OR GPT
 
