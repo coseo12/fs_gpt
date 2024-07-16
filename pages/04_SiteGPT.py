@@ -43,16 +43,55 @@ def get_answers(inputs):
     docs = inputs["docs"]
     question = inputs["question"]
     answers_chain = ansers_prompt | llm
-    answers = []
-    for doc in docs:
-        result = answers_chain.invoke(
+    return {
+        "question": question,
+        "answers": [
             {
-                "context": doc.page_content,
-                "question": question,
+                "answer": answers_chain.invoke(
+                    {
+                        "context": doc.page_content,
+                        "question": question,
+                    }
+                ).content,
+                "source": doc.metadata["source"],
+                "date": doc.metadata["lastmod"],
             }
-        )
-        answers.append(result)
-    st.write(answers)
+            for doc in docs
+        ],
+    }
+
+
+choose_prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            """
+        Use ONLY the following pre-existing answers to answer the user's question.
+
+        Use the answers that have the highest score (more helpful) and favor the most recent ones.
+
+        Cite sources. Do not modify the source, keep it as a link.
+        
+        Return the sources of the answers as they are, do not change them.
+
+        Answers: {answers}
+        """,
+        ),
+        ("human", "{question}"),
+    ]
+)
+
+
+# Define the function to choose the answer
+def choose_answer(inputs):
+    answers = inputs["answers"]
+    question = inputs["question"]
+    choose_chain = choose_prompt | llm
+    condensed = "\n\n".join(
+        f"{answer['answer']}\nSource:{answer['source']}\nDate:{answer['date']}\n"
+        for answer in answers
+    )
+    return choose_chain.invoke({"answers": condensed, "question": question})
 
 
 # Define the function to parse the page
@@ -123,10 +162,17 @@ if url:
     else:
         # Load the SiteMap
         retriever = load_website(url)
+        query = st.text_input("Ask a question to the website", key="question")
+        if query:
+            chain = (
+                {
+                    "docs": retriever,
+                    "question": RunnablePassthrough(),
+                }
+                | RunnableLambda(get_answers)
+                | RunnableLambda(choose_answer)
+            )
 
-        chain = {
-            "docs": retriever,
-            "question": RunnablePassthrough(),
-        } | RunnableLambda(get_answers)
+            result = chain.invoke(query)
 
-        chain.invoke("Ways to partner with us?")
+            st.write(result.content)
