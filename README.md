@@ -5019,9 +5019,30 @@ cutting_audio_into_chunks("./files/audio.mp3", "./files/chunks")
 
 ## 10-3. Whisper Transcript
 
-```py
+이제 2개정도의 chunk 오디오 파일(각 10분)만을 이용해서 Whisper Model을 사용하여 녹취록을 받아보겠습니다.
 
+```py
+import openai
+import glob
+
+# Get Audio to Text
+def transcribe_chunks(chunk_path, destination):
+    files = glob.glob(f"{chunk_path}/*.mp3")
+    final_transcript = ""
+    for file in files:
+        with open(file, "rb") as audio_file:
+            # transcribe audio
+            transcript = openai.audio.transcriptions.create(
+                model="whisper-1", file=open(audio_file.name, "rb"), language="en"
+            )
+            final_transcript += transcript.text
+    with open(destination, "w") as file:
+        file.write(final_transcript)
+
+transcribe_chunks("./files/chunks", "./files/transcript.txt")
 ```
+
+위 코드를 실행하면 transcript.txt 파일이 생성된 것을 확인 할 수 있습니다.
 
 ## 10-4. Upload UI
 
