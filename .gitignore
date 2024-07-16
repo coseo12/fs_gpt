@@ -110,3 +110,7 @@ download.sh
 .streamlit/
 
 *.toml
+
+*.mp4
+
+*.mp3

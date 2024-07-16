@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(56%)
+- 진행 중...(58%)
 
 ## Open AI를 위한 요구사항
 
@@ -4948,12 +4948,45 @@ if url:
 
 우리가 할 일은 사용자가 동영상을 업로드하면 영상부분을 제거 후 오디오만 추출합니다. 해당 오디오를 10분 단위로 분할해서 해당 오디오를 OpenAI API를 이용하여 Whisper Model에 입력합니다. Whisper Model은 대화를 받아적고 그 내용을 우리에게 넘겨줍니다. 이 내용에 Chain을 구현하여 전체 대화의 내용을 요약하도록 하고 문서를 embed한 다음에 사용자가 다른 chain을 실행하도록 할 수 있습니다. 예를들어 Stuff, Map reduce, Map rerank 같은 Chain을 의미합니다.
 
+- [Whisper AI](https://github.com/openai/whisper)
+
 ## 10-1. Audio Extraction
 
-```py
-# pages/MeetingGPT.py
+잠시 Jupyter notebook으로 돌아가겠습니다. 여러 기능들을 각각 테스트 후에 조합해서 완성해 나아가겠습니다.
 
+FFmpeg 설치가 필요합니다. 아래의 공식페이지에서 OS 맞춰서 다운로드 받아서 설치해주세요.
+
+- [FFmpeg](https://ffmpeg.org/)
+
+```zsh
+# Mac 기준 Brew로 설치가 가능합니다.
+brew install ffmpeg
 ```
+
+동영상을 가져오고 오디오를 추출하기 위한 ffmpeg 명령어는 아래와 같습니다.
+
+```zsh
+# files/podcast.mp4 <- 만약 이 경로에 동영상파일이 존재한다면
+ffmpeg -i files/podcast.mp4 -vn files/audio.mp3
+```
+
+위의 CLI 동작을 파이썬 코드로 구성하기 위해 subprocess를 사용해보겠습니다.
+
+- [Subprocess](https://docs.python.org/ko/3/library/subprocess.html)
+
+```py
+import subprocess
+
+def extract_audio_from_video(video_path, audio_path):
+    command = ["ffmpeg", "-i", video_path, "-vn", audio_path]
+    subprocess.run(command)
+
+extract_audio_from_video("./files/podcast.mp4", "./files/audio.mp3")
+```
+
+실행모습입니다.
+
+![10-1-1 Image](./images/10-1-1.png)
 
 ## 10-2. Cutting The Audio
 
