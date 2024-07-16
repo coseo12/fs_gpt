@@ -4977,6 +4977,7 @@ ffmpeg -i files/podcast.mp4 -vn files/audio.mp3
 ```py
 import subprocess
 
+# extract_audio_from_video 함수를 사용하여 오디오 추출
 def extract_audio_from_video(video_path, audio_path):
     command = ["ffmpeg", "-i", video_path, "-vn", audio_path]
     subprocess.run(command)
@@ -4990,15 +4991,35 @@ extract_audio_from_video("./files/podcast.mp4", "./files/audio.mp3")
 
 ## 10-2. Cutting The Audio
 
-```py
-# pages/MeetingGPT.py
+10-1에서 만들어진 오디오 파일을 pydub를 이용해서 10분 길이의 mp3파일로 변환해보겠습니다.
 
+pydub은 파이썬에서 오디오에 대한 다양한 편집이 가능한 라이브러리입니다.
+
+- [pydub](https://github.com/jiaaro/pydub)
+
+```py
+import math
+from pydub import AudioSegment
+
+# 오디오를 10분 단위로 자르기
+def cutting_audio_into_chunks(audio_path, chunks_path):
+    track = AudioSegment.from_file(audio_path)
+    ten_minutes = 10 * 60 * 1000
+    chunks = math.ceil(len(track) / ten_minutes)
+    for i in range(chunks):
+        start_time = i * ten_minutes
+        end_time = (i + 1) * ten_minutes
+        chunk = track[start_time:end_time]
+        chunk.export(f"{chunks_path}/chunk_{i}.mp3", format="mp3")
+
+cutting_audio_into_chunks("./files/audio.mp3", "./files/chunks")
 ```
+
+위 코드를 실행하면 chunk 단위로 파일이 생성된 것을 확인 할 수 있습니다.
 
 ## 10-3. Whisper Transcript
 
 ```py
-# pages/MeetingGPT.py
 
 ```
 
