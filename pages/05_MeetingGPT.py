@@ -69,7 +69,7 @@ st.markdown(
 with st.sidebar:
     video = st.file_uploader("Video", type=["mp4", "mov", "avi", "mkv"])
 if video:
-    with st.status("Loading video..."):
+    with st.status("Loading video...") as status:
         video_content = video.read()
         video_path = f"./.cache/{video.name}"
         audio_path = video_path.replace("mp4", "mp3")
@@ -77,9 +77,15 @@ if video:
         destination_path = video_path.replace("mp4", "txt")
         with open(video_path, "wb") as f:
             f.write(video_content)
-    with st.status("Extracting audio..."):
+        status.update(label="Extracting audio...")
         extract_audio_from_video(video_path)
-    with st.status("Cutting audio segments..."):
+        status.update(label="Cutting audio segments...")
         cutting_audio_into_chunks(audio_path, chunks_path)
-    with st.status("Trascribing audio..."):
+        status.update(label="Trascribing audio...")
         transcribe_chunks(chunks_path, destination_path)
+
+    trascript_tab, summary_tab, qa_tab = st.tabs(["Transcript", "Summary", "Q&A"])
+
+    with trascript_tab:
+        with open(destination_path, "r") as file:
+            st.write(file.read())
