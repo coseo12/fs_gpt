@@ -107,9 +107,7 @@ download.sh
 
 .cache/
 
-.streamlit/
-
-*.toml
+secrets.toml
 
 *.mp4
 
