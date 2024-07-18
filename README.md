@@ -5653,16 +5653,50 @@ if video:
 
 # 11. INVESTOR GPT
 
-Agent에 대해서 알아보겠습니다. 커스텀 Agent를 생성해서 회사의 이름을 전달해주면 검색엔진에서 회사에 관한 정보 검색을 결정합니다. 정보를 수집하면 수집된 정보를 기반으로 Tool들을 선택합니다. 이 Tool은 여러 기능을 제공해 줍니다. 예를 들어 회사의 stock 가격을 검색하거나 news를 얻기 위한 API를 사용하거나 회사의 손익계산서등을 확인하는 등의 Tool들을 우리가 만들어주면 Agent는 사용할 Tool을 선택하여 사용합니다.
+Agent에 대해서 알아보겠습니다. Agent를 생성해서 회사의 이름을 전달해주면 검색엔진에서 회사에 관한 정보 검색을 결정합니다. 정보를 수집하면 수집된 정보를 기반으로 Tool들을 선택합니다. 이 Tool은 여러 기능을 제공해 줍니다. 예를 들어 회사의 stock 가격을 검색하거나 news를 얻기 위한 API를 사용하거나 회사의 손익계산서등을 확인하는 등의 Tool들을 우리가 만들어주면 Agent는 사용할 Tool을 선택하여 사용합니다.
 우리는 Agent에게 정보를 주지 않고 결론을 만들어내라는 요청도 하지 않습니다. Agent는 Tool을 이용해서 알아서 추론해 내고 결론을 보고할 것 입니다.
 
 - [LangChain - Agent](https://python.langchain.com/v0.1/docs/modules/agents/)
 
 ## 11-1. Your First Agent
 
-```py
+간단한 Custom Agent Tool을 생성해서 Agent를 실행해보겠습니다.
 
+잠시 Jupyter Notebook으로 돌아가 예제를 작성해하겠습니다.
+
+```py
+from langchain_openai import ChatOpenAI
+from langchain.tools import StructuredTool
+from langchain.agents import initialize_agent, AgentType
+
+llm = ChatOpenAI(
+    temperature=0.1 # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+)
+
+def plus(a, b):
+    return a + b
+
+agent = initialize_agent(
+    llm=llm, # LLM 모델
+    verbose=True, # 상세 모드
+    agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, # 에이전트 타입
+    tools=[
+        StructuredTool.from_function(
+            func=plus,
+            name="Sum Calculator",
+            description="Use this to perform sums of two numbers. This tool take two arguments, both should be numbers.",
+        ) # 함수 정의
+    ]
+)
+
+prompot = "Cost of $355.39 + $924.87 + $721.2 + $1940.29 + $573.63 + $65.72 + $35.00 + $552.00 + $76.16 + $29.12"
+
+agent.invoke(prompot)
 ```
+
+실행 결과에서 우리가 넘겨준 도구를 가지고 계산하는 과정과 결과를 확인할 수 있습니다.
+
+![11-1-1 Image](./images/11-1-1.png)
 
 ## 11-2. How do Agents Work
 
