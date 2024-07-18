@@ -3,8 +3,18 @@ import openai
 import glob
 import math
 import subprocess
-from pydub import AudioSegment
 import os
+from pydub import AudioSegment
+from langchain_openai import ChatOpenAI
+from langchain.prompts import ChatPromptTemplate
+from langchain.document_loaders import TextLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.schema import StrOutputParser
+
+# LLM 생성
+llm = ChatOpenAI(
+    temperature=0.1,
+)
 
 # 학습을 위한 불필요 동작 방지
 has_transcript = os.path.exists("./.cache/podcast.txt")
@@ -89,3 +99,59 @@ if video:
     with trascript_tab:
         with open(destination_path, "r") as file:
             st.write(file.read())
+
+    with summary_tab:
+        start = st.button("Generate Summary")
+
+        if start:
+            # Load the documents
+            loader = TextLoader(destination_path)
+            # Define the text splitter
+            splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+                chunk_size=800,
+                chunk_overlap=100,
+            )
+            # Load and split the documents
+            docs = loader.load_and_split(text_splitter=splitter)
+
+            # Define the prompt for the first summary
+            first_summary_prompt = ChatPromptTemplate.from_template(
+                """
+                Write a concise summary of the following:
+                "{context}"
+                CONCISE SUMMARY:
+                """
+            )
+
+            # Define the chain of operations
+            first_summary_chain = first_summary_prompt | llm | StrOutputParser()
+
+            # Summarize the first document
+            summary = first_summary_chain.invoke({"context": docs[0].page_content})
+
+            # Define the prompt for refining the summary
+            refine_prompt = ChatPromptTemplate.from_template(
+                """
+                Your job is to produce a final summary.
+                We have provided an existing summary up to a certain point: {existing_summary}
+                We habe the opportunity to refine the existing summary (only if needed) with some more context below.
+                ----------
+                "{context}"
+                ----------
+                Given the new context, refine the original summary.
+                If the context isn't useful, RETURN the original context.
+                """
+            )
+
+            # Define the chain of operations
+            refine_chain = refine_prompt | llm | StrOutputParser()
+
+            # Summarize the rest of the documents
+            with st.status("Summarizing...") as status:
+                for i, doc in enumerate(docs[1:]):
+                    status.update(label=f"Processing document {i+1}/{len(docs) - 1}")
+                    summary = refine_chain.invoke(
+                        {"existing_summary": summary, "context": doc.page_content}
+                    )
+                    st.write(summary)
+            st.write(summary)
