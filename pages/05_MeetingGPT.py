@@ -8,8 +8,14 @@ from pydub import AudioSegment
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain.document_loaders import TextLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.text_splitter import (
+    RecursiveCharacterTextSplitter,
+)
 from langchain.schema import StrOutputParser
+from langchain.vectorstores.faiss import FAISS
+from langchain.embeddings import OpenAIEmbeddings, CacheBackedEmbeddings
+from langchain.storage import LocalFileStore
+from langchain.schema.runnable import RunnableLambda, RunnablePassthrough
 
 # LLM 생성
 llm = ChatOpenAI(
@@ -18,6 +24,40 @@ llm = ChatOpenAI(
 
 # 학습을 위한 불필요 동작 방지
 has_transcript = os.path.exists("./.cache/podcast.txt")
+
+# Define the text splitter
+splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+    chunk_size=800,
+    chunk_overlap=100,
+)
+
+
+# 문서 형식
+def format_docs(docs):
+    return "\n\n".join(document.page_content for document in docs)
+
+
+# 파일 처리
+@st.cache_resource(
+    show_spinner="Embedding file...",
+)
+def embed_file(file_path):
+    # cache_dir - 캐시 디렉토리
+    cache_dir = LocalFileStore(f"./.cache/meeting_embeddings/{file.name}")
+    # chunk_size - 텍스트를 분할하는 크기
+    # chunk_overlap - 분할된 텍스트의 중복 크기
+    loader = TextLoader(file_path)
+    docs = loader.load_and_split(text_splitter=splitter)
+    embeddings = OpenAIEmbeddings()
+    # 캐시된 임베딩을 사용하여 Vector Store 초기화
+    cached_embeddings = CacheBackedEmbeddings.from_bytes_store(
+        embeddings,
+        cache_dir,
+    )
+    # Vector Store 초기화
+    vectorstore = FAISS.from_documents(docs, cached_embeddings)
+    retriver = vectorstore.as_retriever()
+    return retriver
 
 
 # extract_audio_from_video 함수를 사용하여 오디오 추출
@@ -106,11 +146,7 @@ if video:
         if start:
             # Load the documents
             loader = TextLoader(destination_path)
-            # Define the text splitter
-            splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-                chunk_size=800,
-                chunk_overlap=100,
-            )
+
             # Load and split the documents
             docs = loader.load_and_split(text_splitter=splitter)
 
@@ -155,3 +191,33 @@ if video:
                     )
                     st.write(summary)
             st.write(summary)
+
+    with qa_tab:
+        retriever = embed_file(destination_path)
+
+        qustion = st.text_input(label="Ask a question")
+
+        qna_prompt = ChatPromptTemplate.from_template(
+            """
+            Answer the question using Only the following context, If you don't know the answer 
+            just say you don't know. DON'T make anything up.
+            If you ask a question in not english, we will translate the context and process it.
+
+            Context: {context}
+            Question: {question}                                         
+            """
+        )
+
+        if qustion:
+            qna_chain = (
+                {
+                    "context": retriever | RunnableLambda(format_docs),
+                    "question": RunnablePassthrough(),
+                }
+                | qna_prompt
+                | llm
+            )
+
+            with st.chat_message("ai"):
+                res = qna_chain.invoke(qustion)
+                st.markdown(res.content)

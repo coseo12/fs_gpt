@@ -1,11 +1,10 @@
 import streamlit as st
 from langchain.document_loaders import UnstructuredFileLoader
 from langchain.storage import LocalFileStore
-from langchain.document_loaders import UnstructuredFileLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain.embeddings import CacheBackedEmbeddings
-from langchain.vectorstores import Chroma
+from langchain.vectorstores.faiss import FAISS
 from langchain.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain.callbacks.base import BaseCallbackHandler
@@ -74,7 +73,7 @@ def embed_file(file):
         cache_dir,
     )
     # Vector Store 초기화
-    vectorstore = Chroma.from_documents(docs, cached_embeddings)
+    vectorstore = FAISS.from_documents(docs, cached_embeddings)
     retriver = vectorstore.as_retriever()
     return retriver
 
