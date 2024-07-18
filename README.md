@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(64%)
+- 진행 중...(65%)
 
 ## Open AI를 위한 요구사항
 
@@ -5700,9 +5700,11 @@ agent.invoke(prompot)
 
 ## 11-2. How do Agents Work
 
-```py
+우리는 LangSmith에서 Agent가 실행되는 과정을 좀 더 시각적으로 자세히 확인 할 수 있습니다.
 
-```
+Agent가 실행되는 과정을 간단히 설명하자면 Agent에 Input을 줄 때 runtime은 LLM으로부터 get_action을 받아오려 합니다. 이때 LLM 한테 어떤 함수를 사용할지 고르게 됩니다. LLM은 다음 Action에 대해서 AgentFinish로 응답하지 않는다면 함수를 실행하게 됩니다. 이것이 우리가 넘겨준 Custom Tool을 사용하게 되는 결과입니다.
+
+![11-2-1 Image](./images/11-2-1.png)
 
 ## 11-3. Zero-shot ReAct Agent
 
