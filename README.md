@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(63%)
+- 진행 중...(64%)
 
 ## Open AI를 위한 요구사항
 
@@ -5653,23 +5653,64 @@ if video:
 
 # 11. INVESTOR GPT
 
+Agent에 대해서 알아보겠습니다. 커스텀 Agent를 생성해서 회사의 이름을 전달해주면 검색엔진에서 회사에 관한 정보 검색을 결정합니다. 정보를 수집하면 수집된 정보를 기반으로 Tool들을 선택합니다. 이 Tool은 여러 기능을 제공해 줍니다. 예를 들어 회사의 stock 가격을 검색하거나 news를 얻기 위한 API를 사용하거나 회사의 손익계산서등을 확인하는 등의 Tool들을 우리가 만들어주면 Agent는 사용할 Tool을 선택하여 사용합니다.
+우리는 Agent에게 정보를 주지 않고 결론을 만들어내라는 요청도 하지 않습니다. Agent는 Tool을 이용해서 알아서 추론해 내고 결론을 보고할 것 입니다.
+
+- [LangChain - Agent](https://python.langchain.com/v0.1/docs/modules/agents/)
+
 ## 11-1. Your First Agent
+
+```py
+
+```
 
 ## 11-2. How do Agents Work
 
+```py
+
+```
+
 ## 11-3. Zero-shot ReAct Agent
+
+```py
+
+```
 
 ## 11-4. OpenAI Functions Agent
 
+```py
+
+```
+
 ## 11-5. Search Toll
+
+```py
+
+```
 
 ## 11-6. Stock Information Tools
 
+```py
+
+```
+
 ## 11-7. Agent Prompt
+
+```py
+
+```
 
 ## 11-8. SQLDatavase Toolkit
 
+```py
+
+```
+
 ## 11-9. Conclusions
+
+```py
+
+```
 
 # 12. CHEF GPT
 

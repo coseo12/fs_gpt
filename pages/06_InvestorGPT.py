@@ -1,3 +1,8 @@
 import streamlit as st
 
-st.title('Investor GPT')
+st.set_page_config(
+    page_title="InvestorGPT",
+    page_icon="📈",
+)
+
+st.title("Investor GPT")
