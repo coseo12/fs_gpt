@@ -5649,7 +5649,7 @@ if video:
 
 실행화면입니다.
 
-![10-7-1 Image](./images/10-6-1.png)
+![10-7-1 Image](./images/10-7-1.png)
 
 # 11. INVESTOR GPT
 
