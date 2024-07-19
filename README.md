@@ -5674,7 +5674,7 @@ llm = ChatOpenAI(
 )
 
 def plus(a, b):
-    return a + b
+    return float(a) + float(b)
 
 agent = initialize_agent(
     llm=llm, # LLM 모델
@@ -5702,15 +5702,107 @@ agent.invoke(prompot)
 
 우리는 LangSmith에서 Agent가 실행되는 과정을 좀 더 시각적으로 자세히 확인 할 수 있습니다.
 
-Agent가 실행되는 과정을 간단히 설명하자면 Agent에 Input을 줄 때 runtime은 LLM으로부터 get_action을 받아오려 합니다. 이때 LLM 한테 어떤 함수를 사용할지 고르게 됩니다. LLM은 다음 Action에 대해서 AgentFinish로 응답하지 않는다면 함수를 실행하게 됩니다. 이것이 우리가 넘겨준 Custom Tool을 사용하게 되는 결과입니다.
+11-1의 예제에서 Agent가 실행되는 과정을 간단히 설명하자면 Agent에 Input을 줄 때 runtime은 LLM으로부터 get_action을 받아오려 합니다. 이때 LLM 한테 어떤 함수를 사용할지 고르게 됩니다. LLM은 다음 Action에 대해서 AgentFinish로 응답하지 않는다면 함수를 실행하게 됩니다. 이것이 우리가 넘겨준 Custom Tool을 사용하게 되는 결과입니다.
+
+일반적으로 요약하자면 Agent는 다음과 같은 단계로 동작합니다:
+
+1. 입력 처리
+
+LangChain 에이전트는 사용자로부터 입력을 받습니다. 이 입력은 텍스트, 음성 또는 다른 형태일 수 있습니다. 음성이나 이미지 같은 비텍스트 데이터는 먼저 처리하여 텍스트 형식으로 변환됩니다.
+
+2. 컨텍스트 이해
+
+에이전트는 사용자의 입력을 분석하여 의도와 맥락을 파악합니다. 이 과정에서 LangChain의 자연어 이해 기능이 활용되며, 입력 데이터에서 키워드, 문맥, 감정 등을 추출합니다.
+
+3. 데이터 및 지식 기반 접근
+
+에이전트는 필요에 따라 외부 데이터 소스나 내부 데이터베이스에 접근할 수 있습니다. 이를 통해 사용자 질문에 대한 답변을 구성하거나, 필요한 정보를 수집합니다. LangChain은 다양한 데이터 소스와의 통합을 지원하여, 보다 풍부한 반응을 생성할 수 있도록 합니다.
+
+4. 반응 생성
+
+사용자의 요구와 맥락에 맞는 반응을 생성하기 위해 LangChain은 언어 모델을 사용합니다. 이 단계에서는 입력, 컨텍스트 분석 결과, 데이터 조회 결과를 바탕으로 적절한 답변이나 메시지를 구성합니다.
+
+5. 출력 제공
+
+에이전트는 생성된 반응을 사용자에게 전달합니다. 이 출력은 단순한 텍스트 응답일 수도 있고, 조작이 필요한 명령이나 타 시스템과의 인터페이스를 통한 작업 결과일 수도 있습니다.
+
+6. 지속적인 학습과 개선
+
+LangChain 에이전트는 사용자의 피드백과 상호작용을 통해 지속적으로 학습하고 개선합니다. 이 과정에서 기계 학습 알고리즘을 활용하여 에이전트의 성능을 점차 최적화시킵니다.
+
+- [LangChain - Agent](https://python.langchain.com/v0.1/docs/modules/agents/)
 
 ![11-2-1 Image](./images/11-2-1.png)
 
 ## 11-3. Zero-shot ReAct Agent
 
-```py
+Agent에는 다양한 유형이 있지만 우리가 살펴볼 것은 Zero-shot ReAct입니다. 가장 범용적인 Agent입니다.
 
+Structured Input은 여러입력을 가질 수 있지만 Zero-shot은 그렇지 않습니다.
+
+ReAct(Reason + Act)에 대해서 간단히 요약하자면 대화형 에이전트가 언어 모델을 사용하여 특정 상황에 대응하고, 사용자의 요구에 맞는 동작을 수행할 수 있게 하는 기법 중 하나입니다. 이 방법은 사용자의 요청을 정확하게 파악하고, 그에 따른 적절한 반응을 생성하기 위해 설계되었습니다. ReAct는 다음과 같은 몇 가지 핵심 단계를 포함합니다:
+
+1. 요청 분석
+
+   ReAct 방식에서는 먼저 사용자의 입력이나 요청을 분석합니다. 이는 입력된 텍스트나 명령을 이해하고, 이를 특정 행동이나 명령으로 변환할 수 있는 정보로 처리하는 과정을 포함합니다.
+
+2. 적절한 반응 생성
+
+   입력 분석을 통해 도출된 정보를 바탕으로, 언어 모델은 적절하고 자연스러운 반응을 생성합니다. 이 과정에서는 다양한 맥락 정보, 이전 대화 내용, 사용자의 선호 등이 고려될 수 있습니다.
+
+3. 동작 실행
+
+   생성된 반응은 사용자에게 전달되기 전에, 필요한 경우 특정 동작으로 변환되어 실행됩니다. 예를 들어, "내일 오전 일정을 알려줘"라는 요청에 대해, 에이전트는 내부적으로 캘린더에 접근하여 사용자의 일정을 확인하고 이를 요약하여 답변할 수 있습니다.
+
+4. 피드백 반영
+
+   사용자의 피드백을 받아 이를 통해 에이전트의 반응을 더욱 정교하게 조정합니다. 이는 학습 과정을 통해 이루어질 수 있으며, 사용자 만족도를 높이기 위한 지속적인 개선이 이루어집니다.
+
+ReAct 방식은 특히 서비스나 제품에서 사용자 경험을 중요시하는 경우, 빠르고 정확한 반응을 제공함으로써 사용자 만족도를 크게 향상시킬 수 있습니다. 이는 텍스트 기반의 대화뿐만 아니라 음성 인식, 이미지 분석 등 다양한 입력 형식에서도 활용될 수 있습니다.
+
+자세한 ReAct관련된 내용은 아래 논문 링크을 참고해주세요
+
+- [LangChain - Agent Types](https://python.langchain.com/v0.1/docs/modules/agents/agent_types/)
+
+- [LangChain - ReAct](https://python.langchain.com/v0.1/docs/modules/agents/agent_types/react/)
+
+- [ReAct - Google Research, Brain team](https://arxiv.org/pdf/2210.03629.pdf)
+
+```py
+from langchain_openai import ChatOpenAI
+from langchain.tools import StructuredTool, Tool
+from langchain.agents import initialize_agent, AgentType
+
+llm = ChatOpenAI(
+    temperature=0.1 # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+)
+
+def plus(input):
+    a, b = input.split(",")
+    return float(a) + float(b)
+
+agent = initialize_agent(
+    llm=llm,  # LLM 모델
+    verbose=True,  # 상세 모드
+    agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,  # 에이전트 타입
+    handle_parsing_errors=True,  # 파싱 에러 처리
+    tools=[
+        Tool.from_function(
+            func=plus,
+            name="Sum Calculator",
+            description="Use this to perform sums of two numbers. Use this tool by sending a pair of number separated by a comma.\nExample: 1,2",
+        )  # 함수 정의
+    ],
+)
+
+prompot = "Cost of $355.39 + $924.87 + $721.2 + $1940.29 + $573.63 + $65.72 + $35.00 + $552.00 + $76.16 + $29.12"
+
+agent.invoke(prompot)
 ```
+
+실행결과입니다.
+
+![11-3-1 Image](./images/11-3-1.png)
 
 ## 11-4. OpenAI Functions Agent
 
