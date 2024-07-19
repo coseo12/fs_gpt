@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(67%)
+- 진행 중...(68%)
 
 ## Open AI를 위한 요구사항
 
@@ -5872,6 +5872,7 @@ agent.invoke(prompt)
 from langchain_openai import ChatOpenAI
 from langchain.tools import BaseTool
 from langchain.utilities import DuckDuckGoSearchAPIWrapper
+from langchain.agents import initialize_agent, AgentType
 from pydantic import BaseModel, Field
 from typing import Type
 
@@ -5915,8 +5916,145 @@ agent.invoke(prompt)
 
 ## 11-6. Stock Information Tools
 
-```py
+관련 주식에 대한 정보를 가져오기 위해 야후 Alpha Ventage를 이용해보겠습니다.
 
+우선 아래 홈페이지에서 회원가입 후 API키를 발급해야 합니다.
+
+- [Alpha Ventage](https://www.alphavantage.co/)
+
+예제를 작성해보겠습니다.
+
+```py
+# 11-6. Stock Information Tools
+from langchain_openai import ChatOpenAI
+from langchain.tools import BaseTool
+from langchain.utilities import DuckDuckGoSearchAPIWrapper
+from langchain.agents import initialize_agent
+from pydantic import BaseModel, Field
+from typing import Type
+import os
+import requests
+
+alpha_ventage_api_key = os.environ.get("ALPHA_VENTAGE_API_KEY")
+
+# LLM 모델 초기화
+llm = ChatOpenAI(
+    model="gpt-4-turbo",
+    temperature=0.1
+)  # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+
+
+class StockMarketSymbolSearchToolArgsSchema(BaseModel):
+    query: str = Field(description="The query you will search for")
+
+
+class StockMarketSymbolSearchTool(BaseTool):
+    name = "StockMarketSymbolSearchTool"
+    description = "Use this tool to find the stock market symbol of a company."
+    args_schema: Type[StockMarketSymbolSearchToolArgsSchema] = (
+        StockMarketSymbolSearchToolArgsSchema
+    )
+
+    def _run(self, query):
+        ddg = DuckDuckGoSearchAPIWrapper()
+        return ddg.run(query=query)
+
+class CampayOverviewToolArgsSchema(BaseModel):
+    symbol: str = Field(description="Stock symbol of the company.\nExample:APPL,TSLA")
+
+class CompanyOverviewTool(BaseTool):
+    name = "CompanyOverview"
+    description = """
+    Use this to get an overview of the financials of the company.
+    You should enter a stock symbol.
+    """
+    args_schema: Type[CampayOverviewToolArgsSchema] = CampayOverviewToolArgsSchema
+
+    def _run(self, symbol):
+        r = requests.get(
+            f"https://www.alphavantage.co/query?function=OVERVIEW&symbol={symbol}&apikey={alpha_ventage_api_key}"
+        )
+        return r.json()
+
+
+class CompanyIncomeStatementTool(BaseTool):
+    name = "CompanyIncomeStatement"
+    description = """
+    Use this to get the income statement of a company.
+    You should enter a stock symbol.
+    """
+    args_schema: Type[CampayOverviewToolArgsSchema] = CampayOverviewToolArgsSchema
+
+    def _run(self, symbol):
+        r = requests.get(
+            f"https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol={symbol}&apikey={alpha_ventage_api_key}"
+        )
+        return r.json()["annualReports"]
+
+
+class CompanyStockPerformanceTool(BaseTool):
+    name = "CompanyStockPerformance"
+    description = """
+    Use this to get the weekly performance of a company stock.
+    You should enter a stock symbol.
+    """
+    args_schema: Type[CampayOverviewToolArgsSchema] = CampayOverviewToolArgsSchema
+
+    def _run(self, symbol):
+        r = requests.get(
+            f"https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol={symbol}&apikey={alpha_ventage_api_key}"
+        )
+        return r.json()
+
+
+# 에이전트 초기화
+agent = initialize_agent(
+    llm=llm,  # LLM 모델
+    verbose=True,  # 상세 모드
+    agent=AgentType.OPENAI_FUNCTIONS,  # 에이전트 타입
+    handle_parsing_errors=True,  # 파싱 에러 처리
+    tools=[
+        StockMarketSymbolSearchTool(),
+        CompanyOverviewTool(),
+        CompanyIncomeStatementTool(),
+        CompanyStockPerformanceTool(),
+    ],
+)
+
+prompt = """
+Give me financial information on Cloudflare stock,
+considering it's financials, income statements and stock performance help me analyze if it's a potential good investment.
+"""
+
+result = agent.invoke(prompt)
+
+result["output"]
+```
+
+야후 파이낸스를 이용할 수도 있습니다.
+
+```zsh
+# 야후 파이낸스 라이브러리 설치
+pip install yfinance
+```
+
+```py
+msft = yf.Ticker("MSFT") # microsoft
+
+# get historical market data
+hist = msft.history(period="1mo")
+# show financials:
+# - income statement
+msft.income_stmt
+msft.quarterly_income_stmt
+# - balance sheet
+msft.balance_sheet
+msft.quarterly_balance_sheet
+# - cash flow statement
+msft.cashflow
+msft.quarterly_cashflow
+# show news
+msft.news
 ```
 
 ## 11-7. Agent Prompt
@@ -5925,7 +6063,7 @@ agent.invoke(prompt)
 
 ```
 
-## 11-8. SQLDatavase Toolkit
+## 11-8. SQLDatabase Toolkit
 
 ```py
 
