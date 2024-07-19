@@ -5864,9 +5864,54 @@ agent.invoke(prompt)
 
 ## 11-5. Search Tool
 
-```py
+이제 본격적으로 Investor GPT를 만들기 위한 Tool을 만들어 보겠습니다.
 
+가장 먼저 회사의 정보를 웹에서 찾는 Tool을 만들겠습니다.
+
+```py
+from langchain_openai import ChatOpenAI
+from langchain.tools import BaseTool
+from langchain.utilities import DuckDuckGoSearchAPIWrapper
+from pydantic import BaseModel, Field
+from typing import Type
+
+
+# LLM 모델 초기화
+llm = ChatOpenAI(temperature=0.1)  # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+
+class StockMarketSymbolSearchToolArgsSchema(BaseModel):
+    query: str = Field(description="The query you will search for")
+
+
+class StockMarketSymbolSearchTool(BaseTool):
+    name = "StockMarketSymbolSearchTool"
+    description = "Use this tool to find the stock market symbol of a company."
+    args_schema: Type[StockMarketSymbolSearchToolArgsSchema] = (
+        StockMarketSymbolSearchToolArgsSchema
+    )
+
+    def _run(self, query):
+        ddg = DuckDuckGoSearchAPIWrapper()
+        return ddg.run(query=query)
+
+
+# 에이전트 초기화
+agent = initialize_agent(
+    llm=llm,  # LLM 모델
+    verbose=True,  # 상세 모드
+    agent=AgentType.OPENAI_FUNCTIONS,  # 에이전트 타입
+    handle_parsing_errors=True,  # 파싱 에러 처리
+    tools=[StockMarketSymbolSearchTool()],
+)
+
+prompt = "Give me information on Cloudflare stock and help me analyze if it's a potential good investment. Also tell me what symbol does the stock have."
+
+agent.invoke(prompt)
 ```
+
+실행결과입니다.
+
+![11-5-1 Image](./images/11-5-1.png)
 
 ## 11-6. Stock Information Tools
 
