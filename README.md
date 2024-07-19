@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(65%)
+- 진행 중...(67%)
 
 ## Open AI를 위한 요구사항
 
@@ -5806,9 +5806,61 @@ agent.invoke(prompot)
 
 ## 11-4. OpenAI Functions Agent
 
-```py
+이제 Agent Type을 OPENAI_FUNCTIONS로 변경해서 Agent을 실행해보겠습니다.
 
+Tool을 전달하는 방식도 변경하기 위해 이를 위해 Pydantic을 활용하겠습니다. Pydantic은 Python에서 데이터 유효성 라이브러리 중 하나입니다.
+
+- [Pydantic](https://docs.pydantic.dev/latest/)
+
+```py
+from langchain_openai import ChatOpenAI
+from langchain.tools import BaseTool
+from langchain.agents import initialize_agent, AgentType
+from pydantic import BaseModel, Field
+from typing import Type
+
+# LLM 모델 초기화
+llm = ChatOpenAI(temperature=0.1)  # 모델의 창의성을 조절하는 옵션 (높을 수록 창의적임)
+
+# 계산기 툴 스키마
+class CalculatorToolArgsSchema(BaseModel):
+    a: float = Field(description="The first number")
+    b: float = Field(description="The second number")
+
+# 계산기 툴
+class CalculatorTool(BaseTool):
+    name = "CalculatorTool"
+    description = """
+    Use this to perform sums of two numbers.
+    The first and second arguments should be numbers.
+    Only receives two arguments.
+    """
+    args_schema: Type[CalculatorToolArgsSchema] = CalculatorToolArgsSchema
+
+    def _run(self, a, b):
+        return a + b
+
+# 에이전트 초기화
+agent = initialize_agent(
+    llm=llm,  # LLM 모델
+    verbose=True,  # 상세 모드
+    agent=AgentType.OPENAI_FUNCTIONS,  # 에이전트 타입
+    handle_parsing_errors=True,  # 파싱 에러 처리
+    tools=[CalculatorTool()],
+)
+
+# 프롬프트
+prompot = "Cost of $355.39 + $924.87 + $721.2 + $1940.29 + $573.63 + $65.72 + $35.00 + $552.00 + $76.16 + $29.12"
+
+# 에이전트 실행
+agent.invoke(prompot)
 ```
+
+실행결과입니다.
+
+![11-4-1 Image](./images/11-4-1.png)
+
+![11-4-2 Image](./images/11-4-2.png)
 
 ## 11-5. Search Toll
 
