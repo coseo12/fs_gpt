@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 app = FastAPI(
     title="CO Maximus Quote Giver",
     description="Get a real quote said by CO Maximus himself.",
+    servers=[{"url": "https://az-reliance-rug-strip.trycloudflare.com"}],
 )
 
 

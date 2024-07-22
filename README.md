@@ -6369,9 +6369,49 @@ def get_quote():
 
 ## 12-3. GPT Action
 
-```py
+12-2에서 작성한 API를 CustomGPT가 API를 알 수 있도록 하겠습니다.
 
+일단 터널링을 하겠습니다.
+
+```zsh
+cloudflared tunnel --url http://127.0.0.1:8000
 ```
+
+임시 https redirect 주소를 이용해서 GPT Action을 사용해 보겠습니다.
+
+FestAPI에 서버 임시 URL을 넣어 줍니다.
+
+```py
+# main.py
+from fastapi import FastAPI
+from pydantic import BaseModel, Field
+
+app = FastAPI(
+    title="CO Maximus Quote Giver",
+    description="Get a real quote said by CO Maximus himself.",
+    servers=[{"url": "{임시주소}"}],
+)
+
+
+class Quote(BaseModel):
+    quote: str = Field(..., description="The quote that CO Maximus said.")
+    year: int = Field(..., description="The year when CO Maximus.")
+
+
+@app.get(
+    "/quote",
+    summary="Returns a random quote by CO Maximus",
+    description="Upon receiving a GET request this endpoint will return a real quiote said by CO Maximus himself.",
+    response_description="A Quote object that contains the quote said by CO Maximus and the date when the quote was said.",
+    response_model=Quote,
+)
+def get_quote():
+    return {"quote": "Life is short so eat it all.", "year": 2024}
+```
+
+작업을 추가해서 Server URL을 넣어 줍니다. ({임시URL}/openapi.json)
+
+![12-3-1 Image](./images/12-3-1.png)
 
 ## 12-4. API Key Auth
 
