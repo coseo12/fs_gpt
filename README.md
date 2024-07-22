@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(75%)
+- 진행 중...(76%)
 
 ## Open AI를 위한 요구사항
 
@@ -6435,9 +6435,88 @@ def get_quote(request: Request):
 
 ## 12-5. OAuth
 
-```py
+이제 OAuth 방식을 알아보고 구현해보도록 하겠습니다. CustomGPT에 OAuth 내용을 미리 입력합시다.
 
+클라이언트 아이디: {0c1UTjKjSF}
+
+클라이언트 시크릿: {eFTjgI8eNe}
+
+인증 URL: {URL}/authorize
+
+토큰 URL: {URL}/token
+
+범위: user:read,user:delete
+
+![12-5-1 Image](./images/12-5-1.png)
+
+이제 Endpoint를 만들어 봅시다.
+
+```py
+from fastapi import FastAPI, Request, Form
+from fastapi.responses import HTMLResponse
+from pydantic import BaseModel, Field
+
+app = FastAPI(
+    title="CO Maximus Quote Giver",
+    description="Get a real quote said by CO Maximus himself.",
+    servers=[{"url": "https://az-reliance-rug-strip.trycloudflare.com"}],
+)
+
+
+class Quote(BaseModel):
+    quote: str = Field(..., description="The quote that CO Maximus said.")
+    year: int = Field(..., description="The year when CO Maximus.")
+
+
+@app.get(
+    "/quote",
+    summary="Returns a random quote by CO Maximus",
+    description="Upon receiving a GET request this endpoint will return a real quiote said by CO Maximus himself.",
+    response_description="A Quote object that contains the quote said by CO Maximus and the date when the quote was said.",
+    response_model=Quote,
+    openapi_extra={
+        "x-openai-isConsequential": True,
+    },
+)
+def get_quote(request: Request):
+    print(request.headers["authorization"])
+    return {"quote": "Life is short so eat it all.", "year": 2024}
+
+
+user_token_db = {"token": "hUCpjCx79e"}
+
+
+@app.get("/authorize", response_class=HTMLResponse)
+def handle_authorize(
+    response_type: str,
+    client_id: str,
+    redirect_uri: str,
+    scope: str,
+    state: str,
+):
+
+    return f"""
+    <html>
+        <head>
+            <title>Authorization</title>
+        </head>
+        <body>
+            <h1>Log Into CO Maximus</h1>
+            <a href="{redirect_uri}?code=token&state={state}">Authorize CO Maximus GPT</a>
+        </body>
+    </html>
+    """
+
+
+@app.post("/token")
+def handle_token(code=Form(...)):
+    if user_token_db[code]:
+        return {"access_token": user_token_db[code], "token_type": "bearer"}
+    else:
+        return {"error": "invalid_grant"}
 ```
+
+기존의 OAuth 방식으로 로그인 확인 후 실행하는 과정을 볼 수 있습니다.
 
 ## 12-6. Chef API
 

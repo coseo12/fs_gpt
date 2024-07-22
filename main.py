@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Form
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 app = FastAPI(
@@ -26,3 +27,36 @@ class Quote(BaseModel):
 def get_quote(request: Request):
     print(request.headers["authorization"])
     return {"quote": "Life is short so eat it all.", "year": 2024}
+
+
+user_token_db = {"token": "hUCpjCx79e"}
+
+
+@app.get("/authorize", response_class=HTMLResponse)
+def handle_authorize(
+    response_type: str,
+    client_id: str,
+    redirect_uri: str,
+    scope: str,
+    state: str,
+):
+
+    return f"""
+    <html>
+        <head>
+            <title>Authorization</title>
+        </head>
+        <body>
+            <h1>Log Into CO Maximus</h1>
+            <a href="{redirect_uri}?code=token&state={state}">Authorize CO Maximus GPT</a>
+        </body>
+    </html>
+    """
+
+
+@app.post("/token")
+def handle_token(code=Form(...)):
+    if user_token_db[code]:
+        return {"access_token": user_token_db[code], "token_type": "bearer"}
+    else:
+        return {"error": "invalid_grant"}
