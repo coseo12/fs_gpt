@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(70%)
+- 진행 중...(71%)
 
 ## Open AI를 위한 요구사항
 
@@ -6207,7 +6207,7 @@ if company:
 
 ## 11-8. SQLDatabase Toolkit
 
-LangChain은 기본적으로 아주 많은 서드파티 제공자들과 병합할 수 잇습니다. 우리는 서드파트 중 하나인 SQLDatabase Toolkit을 사용해보겠습니다.
+LangChain은 기본적으로 아주 많은 서드파티 제공자들과 병합할 수 있습니다. 우리는 서드파트 중 하나인 SQLDatabase Toolkit을 사용해보겠습니다.
 
 - [Tools](https://python.langchain.com/v0.1/docs/integrations/tools/)
 
@@ -6228,7 +6228,6 @@ db = SQLDatabase.from_uri("sqlite:///movies.sqlite")
 
 toolkit = SQLDatabaseToolkit(db=db, llm=llm)
 
-
 agent = create_sql_agent(
     llm=llm,
     toolkit=toolkit,
@@ -6244,6 +6243,23 @@ agent.invoke("Give me the 5 derector that have the highest grossing films.")
 ![11-8-1 Image](./images/11-8-1.png)
 
 # 12. CHEF GPT
+
+OpenAI에서 더이상 개인이 만든 GPT Plugin을 받지 않으면서 CustomGPT를 만드는 것을 권장하고 있습니다. 이전 GPT Plugin을 대신해서 GPT Action이라 부르며 이는 이미 Activate된 많은 Plugin들과 업로드 가능한 Document들로 단지 GPT를 미리 Packaging 하고 Loading하는 것입니다.
+
+이제 GPT Action에서 알아보기 전에 Cloudflared를 설치해야 합니다.
+해당 작업을 위해서 HTTPS가 필요합니다. localhost를 HTTPS 주소로 Redirect해야합니다.
+
+- [Cloudflare Zero Trust](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/)
+
+```zsh
+brew install cloudflared
+```
+
+아래 명령어를 실행하여 설치되었는지 확인합니다.
+
+```zsh
+cloudflared help
+```
 
 ## 12-1. CustomGPT Creation
 
