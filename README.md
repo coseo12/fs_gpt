@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(68%)
+- 진행 중...(70%)
 
 ## Open AI를 위한 요구사항
 
@@ -6061,6 +6061,8 @@ msft.news
 
 이제 본격적으로 InvestorGPT 페이지를 작성해보겠습니다. 앞서 한 예제들을 활용할 것이며 LangChain 0.1.0의 initialize_agent 방식이 아닌 0.2.0 이후의 create_openai_functions_agent을 사용하여 작성하겠습니다.
 
+- [ReAct-Agent](https://python.langchain.com/v0.1/docs/integrations/toolkits/python/#using-react-agent)
+
 ```py
 # pages/InvestorGPT.py
 import streamlit as st
@@ -6205,15 +6207,41 @@ if company:
 
 ## 11-8. SQLDatabase Toolkit
 
-```py
+LangChain은 기본적으로 아주 많은 서드파티 제공자들과 병합할 수 잇습니다. 우리는 서드파트 중 하나인 SQLDatabase Toolkit을 사용해보겠습니다.
 
+- [Tools](https://python.langchain.com/v0.1/docs/integrations/tools/)
+
+다시 Jupyter Notebook으로 돌아가서 간단한 예제를 작성해보겠습니다.
+
+```py
+from langchain_openai import ChatOpenAI
+from langchain.agents import create_sql_agent, AgentType
+from langchain.agents.agent_toolkits import SQLDatabaseToolkit
+from langchain.sql_database import SQLDatabase
+
+llm = ChatOpenAI(
+    model="gpt-4-turbo",
+    temperature=0.1
+    )
+
+db = SQLDatabase.from_uri("sqlite:///movies.sqlite")
+
+toolkit = SQLDatabaseToolkit(db=db, llm=llm)
+
+
+agent = create_sql_agent(
+    llm=llm,
+    toolkit=toolkit,
+    agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+    verbose=True,
+)
+
+agent.invoke("Give me the 5 derector that have the highest grossing films.")
 ```
 
-## 11-9. Conclusions
+실행화면입니다.
 
-```py
-
-```
+![11-8-1 Image](./images/11-8-1.png)
 
 # 12. CHEF GPT
 
