@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(72%)
+- 진행 중...(73%)
 
 ## Open AI를 위한 요구사항
 
@@ -6285,9 +6285,85 @@ CustomGPT의 목표는 사용자가 우리의 Database에 있는 레시피를 �
 
 ## 12-2. FastAPI Server
 
-```py
+CustomGPT에 명언을 제공하는 API를 만들어봅시다.
 
+main.py 파일을 root에 생성합니다. 이 후 기본 예제를 작성하겠습니다.
+
+```py
+# main.py
+from fastapi import FastAPI
+
+app = FastAPI(
+    title="CO Maximus Quote Giver",
+    description="Get a real quote said by CO Maximus himself.",
+)
+
+
+@app.get("/quote")
+def get_quote():
+    return {"quote": "Life is short so eat it all."}
 ```
+
+이제 실행해보겠습니다.
+
+```zsh
+uvicorn main:app --reload
+```
+
+위 명령어를 실행하면 서버가 실행됩니다.(default: 8000)
+
+아래 경로로 접속하면 결과값을 확인 할 수 있습니다.
+
+```zsh
+http://localhost:8000/quote
+```
+
+또한 아래 경로로 들어가면 문서가 자동으로 생성되는 것을 확인할 수 있습니다.
+
+실제로 OpenAI, Chat GPT Plugin, Custom GPT Action은 이것을 참조하게 됩니다.
+
+```zsh
+http://localhost:8000/docs
+```
+
+아래 경로에서는 API설명을 위한 표준 Schema를 볼 수 있습니다.
+
+```zsh
+http://localhost:8000/openapi.json
+```
+
+API에 Summary, Description 과 Model을 추가하겠습니다.
+
+```py
+# main.py
+from fastapi import FastAPI
+from pydantic import BaseModel, Field
+
+app = FastAPI(
+    title="CO Maximus Quote Giver",
+    description="Get a real quote said by CO Maximus himself.",
+)
+
+
+class Quote(BaseModel):
+    quote: str = Field(..., description="The quote that CO Maximus said.")
+    year: int = Field(..., description="The year when CO Maximus.")
+
+
+@app.get(
+    "/quote",
+    summary="Returns a random quote by CO Maximus",
+    description="Upon receiving a GET request this endpoint will return a real quiote said by CO Maximus himself.",
+    response_description="A Quote object that contains the quote said by CO Maximus and the date when the quote was said.",
+    response_model=Quote,
+)
+def get_quote():
+    return {"quote": "Life is short so eat it all.", "year": 2024}
+```
+
+![12-2-1 Image](./images/12-2-1.png)
+
+![12-2-2 Image](./images/12-2-2.png)
 
 ## 12-3. GPT Action
 
