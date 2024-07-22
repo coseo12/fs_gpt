@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(71%)
+- 진행 중...(72%)
 
 ## Open AI를 위한 요구사항
 
@@ -6263,17 +6263,61 @@ cloudflared help
 
 ## 12-1. CustomGPT Creation
 
+최종적으로 ChefGPT라는 CustomGPT를 생성하려 합니다.
+
+Server는 FastAPI를, RAG를 위해 LangChain을 사용하고 Vector Store는 Pinecone을 사용할 것입니다.
+
+CustomGPT의 목표는 사용자가 우리의 Database에 있는 레시피를 찾을 수 있도록 도와주는 것입니다.
+
+우선 CustomGPT에 대해 알아보기 위해 예제를 간단히 만들겠습니다.
+
+1. ChatGPT에서 GPT 만들기를 선택합니다.
+
+![12-1-1 Image](./images/12-1-1.png)
+
+![12-1-2 Image](./images/12-1-2.png)
+
+이제 GPT가 반드시 항상 Action을 실행하도록 합니다.
+
+우선 GPT Builder 메시지를 넣으면 GPT가 자동으로 모든 것을 생성합니다.
+
+![12-1-3 Image](./images/12-1-3.png)
+
 ## 12-2. FastAPI Server
+
+```py
+
+```
 
 ## 12-3. GPT Action
 
+```py
+
+```
+
 ## 12-4. API Key Auth
+
+```py
+
+```
 
 ## 12-5. OAuth
 
+```py
+
+```
+
 ## 12-6. Chef API
 
+```py
+
+```
+
 ## 12-7. Code Challenge
+
+```py
+
+```
 
 ## 12-8. Conclusions
 
