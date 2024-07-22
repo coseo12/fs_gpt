@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(73%)
+- 진행 중...(75%)
 
 ## Open AI를 위한 요구사항
 
@@ -6415,8 +6415,22 @@ def get_quote():
 
 ## 12-4. API Key Auth
 
-```py
+API Auth를 추가하는 2가지 중 API Key 방식 알아보겠습니다.
 
+임의의 API KEY를 아래 화면처럼 넣어줍니다.
+
+![12-4-1 Image](./images/12-4-1.png)
+
+요청에서 헤더를 확인해보면 API KEY를 확인할 수 있습니다.
+
+이를 이용하여 Auth 처리를 진행하면 접근은 제한할 수 있습니다.
+
+```py
+# main.py
+...n
+def get_quote(request: Request):
+    print(request.headers["authorization"])
+    return {"quote": "Life is short so eat it all.", "year": 2024}
 ```
 
 ## 12-5. OAuth
