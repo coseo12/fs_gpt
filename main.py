@@ -19,6 +19,9 @@ class Quote(BaseModel):
     description="Upon receiving a GET request this endpoint will return a real quiote said by CO Maximus himself.",
     response_description="A Quote object that contains the quote said by CO Maximus and the date when the quote was said.",
     response_model=Quote,
+    openapi_extra={
+        "x-openai-isConsequential": True,
+    },
 )
 def get_quote():
     return {"quote": "Life is short so eat it all.", "year": 2024}
