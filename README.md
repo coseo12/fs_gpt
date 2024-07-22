@@ -6363,6 +6363,8 @@ def get_quote():
 
 ![12-2-1 Image](./images/12-2-1.png)
 
+![12-2-3 Image](./images/12-2-3.png)
+
 ![12-2-2 Image](./images/12-2-2.png)
 
 ## 12-3. GPT Action
