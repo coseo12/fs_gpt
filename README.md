@@ -6780,8 +6780,118 @@ assistant = client.beta.assistants.create(
 도구들을 마저 작성하고 적용하겠습니다.
 
 ```py
+import openai as client
+import json
+import yfinance as yf
+from langchain.utilities.duckduckgo_search import DuckDuckGoSearchAPIWrapper
 
+def get_ticker(inputs):
+    ddg = DuckDuckGoSearchAPIWrapper()
+    company_name = inputs["company_name"]
+    return ddg.run(f"Ticker symbol of {company_name}")
+
+def get_income_statement(inputs):
+    ticker = inputs["ticker"]
+    c = yf.Ticker(ticker)
+    return json.dumps(c.income_stmt.to_json())
+
+
+def get_balance_sheet(inputs):
+    ticker = inputs["ticker"]
+    c = yf.Ticker(ticker)
+    return json.dumps(c.balance_sheet.to_json())
+
+
+def get_daily_stock_performance(inputs):
+    ticker = inputs["ticker"]
+    c = yf.Ticker(ticker)
+    return json.dumps(c.history(period="3mo").to_json())
+
+functions = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_ticker",
+            "description": "Given the name of a company returns it's ticker symbol.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "company_name": {
+                        "type": "string",
+                        "description": "The name of the company.",
+                    }
+                },
+                "required": ["company_name"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_income_statement",
+            "description": "Given a ticker symbol (i.e APPL) returns the company's income statement.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticker": {
+                        "type": "string",
+                        "description": "Ticker symbol of the company.",
+                    }
+                },
+                "required": ["ticker"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_balance_sheet",
+            "description": "Given a ticker symbol (i.e APPL) returns the company's balance sheet.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticker": {
+                        "type": "string",
+                        "description": "Ticker symbol of the company.",
+                    }
+                },
+                "required": ["ticker"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_daily_stock_performance",
+            "description": "Given a ticker symbol (i.e APPL) returns performance of stock for the last 100days.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticker": {
+                        "type": "string",
+                        "description": "Ticker symbol of the company.",
+                    }
+                },
+                "required": ["ticker"],
+            },
+        },
+    },
+]
+
+assistant = client.beta.assistants.create(
+    name="Investor Assistant",
+    description="You help users do research on publicly traded companies and you help them decide if they should buy the stock or not.",
+    model="gpt-4-turbo",
+    tools=functions,
+    instructions="You help users do research on publicly traded companies and you help users decide if  they should buy the stock or not.",
+)
+
+assistant
 ```
+
+실행 화면입니다.
+
+![13-2-1 Image](./images/13-2-1.png)
 
 ## 13-4. Running A Thread
 
