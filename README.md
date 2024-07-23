@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(80%)
+- 진행 중...(81%)
 
 ## Open AI를 위한 요구사항
 
@@ -6666,9 +6666,19 @@ OpenAI Assistants는 Agent와 매우 비슷합니다. 우리가 Assistants에게
 
 ## 13-1. How Assistants Work
 
-```py
+Assistant는 Name, Instructions, Model을 가지는 AI이며, Function이나 Function Description을 가지며, 파일을 추가해서 RAG를 할 수 있습니다.
 
-```
+Thread는 User와 Assistant가 주고 받는 메시지들의 모음입니다. 기본적으로 대화와 같습니다. Thread에서 수행하는 작업은 Thread에 Message를 추가하는 것입니다.
+
+Assistant는 메모리를 가질 수 있는데 직접 관리할 필요는 없습니다. 이는 OpenAI에서 자동으로 관리합니다.
+
+마지막으로 Assistant의 응답을 받기위해 Thread를 Run합니다.
+
+- [OpenAI - Assistants Overview](https://platform.openai.com/docs/assistants/overview)
+
+![13-1-1 Image](./images/13-1-1.png)
+
+![13-1-2 Image](./images/13-1-2.png)
 
 ## 13-2. Creating The Assistants
 
