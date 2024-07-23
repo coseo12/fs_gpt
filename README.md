@@ -6895,8 +6895,136 @@ assistant
 
 ## 13-4. Running A Thread
 
-```py
+이제 Thread를 생성하고 Run을 하는 예제를 작성해보겠습니다.
 
+```py
+# 13-2. Creating The Assistants
+import openai as client
+import json
+import yfinance as yf
+from langchain.utilities.duckduckgo_search import DuckDuckGoSearchAPIWrapper
+
+def get_ticker(inputs):
+    ddg = DuckDuckGoSearchAPIWrapper()
+    company_name = inputs["company_name"]
+    return ddg.run(f"Ticker symbol of {company_name}")
+
+def get_income_statement(inputs):
+    ticker = inputs["ticker"]
+    c = yf.Ticker(ticker)
+    return json.dumps(c.income_stmt.to_json())
+
+
+def get_balance_sheet(inputs):
+    ticker = inputs["ticker"]
+    c = yf.Ticker(ticker)
+    return json.dumps(c.balance_sheet.to_json())
+
+
+def get_daily_stock_performance(inputs):
+    ticker = inputs["ticker"]
+    c = yf.Ticker(ticker)
+    return json.dumps(c.history(period="3mo").to_json())
+
+functions = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_ticker",
+            "description": "Given the name of a company returns it's ticker symbol.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "company_name": {
+                        "type": "string",
+                        "description": "The name of the company.",
+                    }
+                },
+                "required": ["company_name"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_income_statement",
+            "description": "Given a ticker symbol (i.e APPL) returns the company's income statement.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticker": {
+                        "type": "string",
+                        "description": "Ticker symbol of the company.",
+                    }
+                },
+                "required": ["ticker"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_balance_sheet",
+            "description": "Given a ticker symbol (i.e APPL) returns the company's balance sheet.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticker": {
+                        "type": "string",
+                        "description": "Ticker symbol of the company.",
+                    }
+                },
+                "required": ["ticker"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_daily_stock_performance",
+            "description": "Given a ticker symbol (i.e APPL) returns performance of stock for the last 100days.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticker": {
+                        "type": "string",
+                        "description": "Ticker symbol of the company.",
+                    }
+                },
+                "required": ["ticker"],
+            },
+        },
+    },
+]
+
+# Create the assistant
+assistant_id = "asst_CmLrR3HRB2mFz2thXanhY3sT"
+
+# Create the assistant thread
+thread = client.beta.threads.create(
+    messages=[
+        {
+            "role": "user",
+            "content": "I want to know if the Unity Software stock is a good buy?"
+        }
+    ]
+)
+
+# Create the assistant run
+run = client.beta.threads.runs.create(
+    thread_id=thread.id,
+    assistant_id=assistant_id,
+)
+
+def get_run(run_id, thread_id):
+    return client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run_id)
+
+def get_message(thread_id):
+    messages = client.beta.threads.messages.list(thread_id=thread_id)
+    for message in messages:
+        print(f"{message.role}: {message.content}")
+
+get_message(thread.id)
 ```
 
 ## 13-5. Assistants Actions
