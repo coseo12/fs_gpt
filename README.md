@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(81%)
+- 진행 중...(82%)
 
 ## Open AI를 위한 요구사항
 
@@ -6682,11 +6682,102 @@ Assistant는 메모리를 가질 수 있는데 직접 관리할 필요는 없습
 
 ## 13-2. Creating The Assistants
 
-```py
+Jupyter Notebook으로 돌아가서 예제를 작성해보겠습니다.
 
+아래 코드를 실행 시 Dashboard에 Investor Assistant가 만들어진 것을 확인할 수 있습니다.
+
+```py
+# 13-2. Creating The Assistants
+import openai as client
+from langchain.utilities.duckduckgo_search import DuckDuckGoSearchAPIWrapper
+
+def get_ticker(inputs):
+    ddg = DuckDuckGoSearchAPIWrapper()
+    company_name = inputs["company_name"]
+    return ddg.run(f"Ticker symbol of {company_name}")
+
+functions = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_ticker",
+            "description": "Given the name of a company returns it's ticker symbol.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "company_name": {
+                        "type": "string",
+                        "description": "The name of the company.",
+                    }
+                },
+                "required": ["company_name"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_income_statement",
+            "description": "Given a ticker symbol (i.e APPL) returns the company's income statement.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticker": {
+                        "type": "string",
+                        "description": "Ticker symbol of the company.",
+                    }
+                },
+                "required": ["ticker"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_balance_sheet",
+            "description": "Given a ticker symbol (i.e APPL) returns the company's balance sheet.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticker": {
+                        "type": "string",
+                        "description": "Ticker symbol of the company.",
+                    }
+                },
+                "required": ["ticker"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_daily_stock_performance",
+            "description": "Given a ticker symbol (i.e APPL) returns performance of stock for the last 100days.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticker": {
+                        "type": "string",
+                        "description": "Ticker symbol of the company.",
+                    }
+                },
+                "required": ["ticker"],
+            },
+        },
+    },
+]
+
+assistant = client.beta.assistants.create(
+    name="Investor Assistant",
+    description="You help users do research on publicly traded companies and you help them decide if they should buy the stock or not.",
+    model="gpt-4-turbo",
+    tools=functions,
+)
 ```
 
 ## 13-3. Assistants Tools
+
+도구들을 마저 작성하고 적용하겠습니다.
 
 ```py
 
