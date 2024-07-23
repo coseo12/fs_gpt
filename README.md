@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(76%)
+- 진행 중...(77%)
 
 ## Open AI를 위한 요구사항
 
@@ -6518,19 +6518,84 @@ def handle_token(code=Form(...)):
 
 기존의 OAuth 방식으로 로그인 확인 후 실행하는 과정을 볼 수 있습니다.
 
-## 12-6. Chef API
+## 12-6. Pinecone
+
+클라우드 기반 Vector Store인 Pinecone을 이용해보겠습니다. Pinecone은 무료 플랜이 존재합니다.
+
+Pinecone에 회원가입 후 API KEY를 env에 등록해주세요. 그리고 대시보드에서 인덱스를 생성해주세요.
+
+다시 Jupyter Notebook으로 돌아와서 예제를 작성해보겠습니다.
+
+초기 데이터 셋팅을 위해 아래 예제를 작성 후 실행합니다.
+
+```py
+from pinecone.grpc import PineconeGRPC as Pinecone
+import os
+from langchain.document_loaders import CSVLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_openai import OpenAIEmbeddings
+from langchain_pinecone import PineconeVectorStore
+
+# Pinecone 초기화
+pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+
+# Splitter
+splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder()
+
+# CSV 파일 로드
+loader = CSVLoader("./recipes.csv")
+
+# 문서 로드 및 분할
+docs = loader.load_and_split(text_splitter=splitter)
+
+# 임베딩 초기화
+embeddings = OpenAIEmbeddings()
+
+# Pinecone Vector Store 생성
+vectore_store = PineconeVectorStore.from_documents(
+    docs, embeddings, index_name="chefgpt"
+)
+```
+
+대시보드에서 벡터가 등록된 것을 확인 후 예제를 수정하겠습니다.
+
+```py
+from pinecone.grpc import PineconeGRPC as Pinecone
+import os
+from langchain_openai import OpenAIEmbeddings
+from langchain_pinecone import PineconeVectorStore
+
+# Pinecone 초기화
+pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+
+# 임베딩 초기화
+embeddings = OpenAIEmbeddings()
+
+# Pinecone Vector Store 초기화
+vectore_store = PineconeVectorStore.from_existing_index(
+    "chefgpt",
+    embeddings,
+)
+
+# 유사도 검색
+docs = vectore_store.similarity_search("tofu")
+
+print(docs)
+```
+
+이후 대시보드에서 요청 결과를 확인 할 수 있습니다.
+
+## 12-7. Chef API
 
 ```py
 
 ```
 
-## 12-7. Code Challenge
+## 12-8. Code Challenge
 
 ```py
-
+# 준비중...
 ```
-
-## 12-8. Conclusions
 
 # 13. ASSISTANTS API
 
