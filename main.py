@@ -1,62 +1,47 @@
-from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse
-from pydantic import BaseModel, Field
+from fastapi import FastAPI
+from pydantic import BaseModel
+from pinecone.grpc import PineconeGRPC as Pinecone
+import os
+from langchain_openai import OpenAIEmbeddings
+from langchain_pinecone import PineconeVectorStore
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Pinecone 초기화
+pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+
+# 임베딩 초기화
+embeddings = OpenAIEmbeddings()
+
+# Pinecone Vector Store 초기화
+vectore_store = PineconeVectorStore.from_existing_index(
+    "chefgpt",
+    embeddings,
+)
 
 app = FastAPI(
-    title="CO Maximus Quote Giver",
-    description="Get a real quote said by CO Maximus himself.",
-    servers=[{"url": "https://az-reliance-rug-strip.trycloudflare.com"}],
+    title="ChefGPT. The best probvider of Indian Recipes in the world.",
+    description="Give ChefGPT a couple of ingredients and it will give you recipes in return.",
+    servers=[{"url": "https://protocols-compaq-shanghai-vids.trycloudflare.com"}],
 )
 
 
-class Quote(BaseModel):
-    quote: str = Field(..., description="The quote that CO Maximus said.")
-    year: int = Field(..., description="The year when CO Maximus.")
+class Document(BaseModel):
+    page_content: str
 
 
 @app.get(
-    "/quote",
-    summary="Returns a random quote by CO Maximus",
-    description="Upon receiving a GET request this endpoint will return a real quiote said by CO Maximus himself.",
-    response_description="A Quote object that contains the quote said by CO Maximus and the date when the quote was said.",
-    response_model=Quote,
+    "/recipe",
+    summary="Returns a list of recipes.",
+    description="Upon receiving an ingredient, this endpoint will return a list of recipes that contain that ingredient.",
+    response_description="A Document object that cntains the recipe and preparation instructions.",
+    response_model=list[Document],
     openapi_extra={
         "x-openai-isConsequential": True,
     },
 )
-def get_quote(request: Request):
-    print(request.headers["authorization"])
-    return {"quote": "Life is short so eat it all.", "year": 2024}
-
-
-user_token_db = {"token": "hUCpjCx79e"}
-
-
-@app.get("/authorize", response_class=HTMLResponse)
-def handle_authorize(
-    response_type: str,
-    client_id: str,
-    redirect_uri: str,
-    scope: str,
-    state: str,
-):
-
-    return f"""
-    <html>
-        <head>
-            <title>Authorization</title>
-        </head>
-        <body>
-            <h1>Log Into CO Maximus</h1>
-            <a href="{redirect_uri}?code=token&state={state}">Authorize CO Maximus GPT</a>
-        </body>
-    </html>
-    """
-
-
-@app.post("/token")
-def handle_token(code=Form(...)):
-    if user_token_db[code]:
-        return {"access_token": user_token_db[code], "token_type": "bearer"}
-    else:
-        return {"error": "invalid_grant"}
+def get_recipe(ingredient: str):
+    # 유사도 검색
+    docs = vectore_store.similarity_search(ingredient)
+    return docs
