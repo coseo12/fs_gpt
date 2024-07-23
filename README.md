@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(79%)
+- 진행 중...(80%)
 
 ## Open AI를 위한 요구사항
 
@@ -6656,21 +6656,55 @@ def get_recipe(ingredient: str):
 
 # 13. ASSISTANTS API
 
+OpenAI Assistants는 Agent와 매우 비슷합니다. 우리가 Assistants에게 도구를 줘서 Assistants에게 메시지를 보내면 그 메시지에 따른 출력을 찾아주도록 할 수도 있으며, 도구를 통해서 모아진 결과를 답변할 수도 있습니다.
+
+우리는 Assistants가 기본적으로 가지는 4가지(Assistant, Thread, Messages, Run) 부분을 살펴보겠습니다.
+
+그 이후 Investor Agent와 비슷한 Investor Assistant를 만들어 보겠습니다. 그리고 RAG Assistant도 구현할 예정입니다.
+
+- [OpenAI - Assistants](https://platform.openai.com/docs/assistants/quickstart)
+
 ## 13-1. How Assistants Work
+
+```py
+
+```
 
 ## 13-2. Creating The Assistants
 
+```py
+
+```
+
 ## 13-3. Assistants Tools
+
+```py
+
+```
 
 ## 13-4. Running A Thread
 
+```py
+
+```
+
 ## 13-5. Assistants Actions
+
+```py
+
+```
 
 ## 13-6. Code Challenge
 
+```py
+# 준비중...
+```
+
 ## 13-7. RAG Assistant
 
-## 13-8. Conclusions
+```py
+
+```
 
 # 14. AzureGPT & AWS BEDROCK
 
