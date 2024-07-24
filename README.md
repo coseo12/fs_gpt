@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(82%)
+- 진행 중...(85%)
 
 ## Open AI를 위한 요구사항
 
@@ -7029,11 +7029,196 @@ get_message(thread.id)
 
 ## 13-5. Assistants Actions
 
-```py
+13-4에서 우리는 Thread를 Run 시키고 Meessage를 확인할 수 있습니다. 하지만 아직 메모리에 기능을 저장하거나 메시지를 답하고 있지 않아서 수동적으로 Assistant에게 다음 진행을 알려줘야 하는 상태입니다. 계속 예제를 이어서 작성하겠습니다.
 
+```py
+import openai as client
+import json
+import yfinance as yf
+from langchain.utilities.duckduckgo_search import DuckDuckGoSearchAPIWrapper
+
+def get_ticker(inputs):
+    ddg = DuckDuckGoSearchAPIWrapper()
+    company_name = inputs["company_name"]
+    return ddg.run(f"Ticker symbol of {company_name}")
+
+def get_income_statement(inputs):
+    ticker = inputs["ticker"]
+    c = yf.Ticker(ticker)
+    return json.dumps(c.income_stmt.to_json())
+
+
+def get_balance_sheet(inputs):
+    ticker = inputs["ticker"]
+    c = yf.Ticker(ticker)
+    return json.dumps(c.balance_sheet.to_json())
+
+
+def get_daily_stock_performance(inputs):
+    ticker = inputs["ticker"]
+    c = yf.Ticker(ticker)
+    return json.dumps(c.history(period="3mo").to_json())
+
+function_map = {
+    "get_ticker": get_ticker,
+    "get_income_statement": get_income_statement,
+    "get_balance_sheet": get_balance_sheet,
+    "get_daily_stock_performance": get_daily_stock_performance,
+}
+
+functions = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_ticker",
+            "description": "Given the name of a company returns it's ticker symbol.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "company_name": {
+                        "type": "string",
+                        "description": "The name of the company.",
+                    }
+                },
+                "required": ["company_name"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_income_statement",
+            "description": "Given a ticker symbol (i.e APPL) returns the company's income statement.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticker": {
+                        "type": "string",
+                        "description": "Ticker symbol of the company.",
+                    }
+                },
+                "required": ["ticker"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_balance_sheet",
+            "description": "Given a ticker symbol (i.e APPL) returns the company's balance sheet.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticker": {
+                        "type": "string",
+                        "description": "Ticker symbol of the company.",
+                    }
+                },
+                "required": ["ticker"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_daily_stock_performance",
+            "description": "Given a ticker symbol (i.e APPL) returns performance of stock for the last 100days.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticker": {
+                        "type": "string",
+                        "description": "Ticker symbol of the company.",
+                    }
+                },
+                "required": ["ticker"],
+            },
+        },
+    },
+]
+
+assistant_id = "asst_h0AnV97nN0tJPtWZB0HifT4W"
+
+thread = client.beta.threads.create(
+    messages=[
+        {
+            "role": "user",
+            "content": "I want to know if the Unity Software stock is a good buy?"
+        }
+    ]
+)
+
+run = client.beta.threads.runs.create(
+    thread_id=thread.id,
+    assistant_id=assistant_id,
+)
+
+
+def get_run(run_id, thread_id):
+    return client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run_id)
+
+
+def send_message(thread_id, content):
+    return client.beta.threads.messages.create(
+        thread_id=thread_id,
+        role="user",
+        content=content,
+    )
+
+
+def get_message(thread_id):
+    messages = client.beta.threads.messages.list(thread_id=thread_id).data
+    messages.reverse()
+    for message in messages:
+        print(f"{message.role}: {message.content}")
+
+
+def get_tool_outputs(run_id, thread_id):
+    run = get_run(run_id, thread_id)
+    outputs = []
+    for action in run.required_action.submit_tool_outputs.tool_calls:
+        action_id = action.id
+        function = action.function
+        # because function.arguments just brings str, so convert it to json so that the function can actually use it.
+        function_args = json.loads(function.arguments)
+        print(f'Calling function:{function.name} with arg {function.arguments}')
+        output = function_map[function.name](function_args)
+        output_str =json.dumps(output)
+        outputs.append(
+            {
+            "tool_call_id":action_id,
+            "output": output_str,
+            }
+        )
+    return outputs
+
+
+def submit_tool_outputs(run_id, thread_id):
+    outputs = get_tool_outputs(run_id, thread_id)
+    return client.beta.threads.runs.submit_tool_outputs(
+        thread_id=thread_id,
+        run_id=run_id,
+        tool_outputs=outputs,
+    )
+```
+
+위 코드를 실행 후 아래 함수를 실행해서 요청을 처리할 도구를 전달해줍니다.
+
+```py
+submit_tool_outputs(run.id, thread.id)
+get_run(run.id, thread.id).status
+```
+
+메시지를 확인하면 처리된 내용을 확인할 수 있습니다.
+
+```py
+get_message(thread.id)
+get_run(run.id, thread.id).status
 ```
 
 ## 13-6. Code Challenge
+
+Streamlit을 사용하여 화면을 구성하기
 
 ```py
 # 준비중...
