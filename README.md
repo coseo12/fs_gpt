@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(85%)
+- 진행 중...(87%)
 
 ## Open AI를 위한 요구사항
 
@@ -7226,9 +7226,123 @@ Streamlit을 사용하여 화면을 구성하기
 
 ## 13-7. RAG Assistant
 
-```py
+Assistant에 RAG를 적용하는 방법을 예제로 작성해 보겠습니다.
 
+- [migration](https://platform.openai.com/docs/assistants/migration)
+
+1. 우선 새로운 Assistant를 생성합니다.
+
+```py
+import openai as client
+
+assistant = client.beta.assistants.create(
+    name="Book Assistant",
+    instructions="You help users with their question on the files they upload.",
+    model="gpt-4-turbo",
+    tools=[{"type": "file_search"}],
+)
 ```
+
+2. Thread를 생성합니다.
+
+```py
+thread = client.beta.threads.create(
+    messages=[
+        {
+            "role": "user",
+            "content": "I want you to help me with this file",
+        }
+    ]
+)
+
+thread
+```
+
+3. 파일을 업로드합니다.
+
+```py
+file = client.files.create(
+    file=client.file_from_path("./files/about.txt"),
+    purpose="assistants"
+)
+
+file
+```
+
+4. 파일을 Thread에 전달합니다.
+
+```py
+client.beta.threads.messages.create(
+    thread_id=thread.id,
+    role="user",
+    content="I want you to help me with this file",
+    attachments=[
+        {
+            "file_id": file.id,
+            "tools": [{"type": "file_search"}],
+        }
+    ],
+)
+```
+
+5. Run을 한번 실행합니다.
+
+```py
+run = client.beta.threads.runs.create(
+    thread_id=thread.id,
+    assistant_id=assistant_id,
+)
+```
+
+6. 메시지를 확인해서 Assistant가 전달 받고 준비되었는지 확인합니다.
+
+```py
+def get_message(thread_id):
+    messages = client.beta.threads.messages.list(thread_id=thread_id).data
+    messages.reverse()
+    for message in messages:
+        print(f"{message.role}: {message.content}")
+
+get_message(thread.id)
+```
+
+7. 파일의 내용에 대한 질문을 Thread에 전달합니다.
+
+```py
+def send_message(thread_id, content):
+    return client.beta.threads.messages.create(
+        thread_id=thread_id,
+        role="user",
+        content=content,
+    )
+
+send_message(thread.id, "Who is Feynman?")
+```
+
+8. 다시 Run합니다.
+
+```py
+run = client.beta.threads.runs.create(
+    thread_id=thread.id,
+    assistant_id=assistant_id,
+)
+```
+
+9. 질문에 대한 답변을 확인합니다.
+
+```py
+def get_message(thread_id):
+    messages = client.beta.threads.messages.list(thread_id=thread_id).data
+    messages.reverse()
+    for message in messages:
+        print(f"{message.role}: {message.content}")
+
+get_message(thread.id)
+```
+
+실행결과입니다.
+
+![13-7-1 Image](./images/13-7-1.png)
 
 # 14. AzureGPT & AWS BEDROCK
 
