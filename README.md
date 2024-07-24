@@ -7346,15 +7346,35 @@ get_message(thread.id)
 
 # 14. AzureGPT & AWS BEDROCK
 
-우리는 OpenAI의 의존성을 줄이기 위해 다른 클라우드 LLM을 사용해보려 하고 AWS Bedrock(Claude)과 AzureGPT(GPT3, GPT4)의 사용법에 대해 알아보려합니다.
+우리는 OpenAI의 의존성을 줄이기 위해 다른 LLM을 사용해보려 하고 AWS Bedrock(Claude)과 AzureGPT(GPT3, GPT4)의 사용법에 대해 알아보려합니다.
 
 ## 14-1. AWS BEDROCK
 
+AWS Bedrock(Claude)을 사용을 위해 AWS에 계정을 생성해서 로그인합니다. 이후 지역을 US East(N. Virginia)로 변경해줍니다.
+
+검색창에서 AWS Bedrock을 검색해서 대시보드에 접속합니다. 모델에 대한 접속 설정을 해야합니다.
+
+![14-1-1 Image](./images/14-1-1.png)
+
+- [AWS Bedrock - Pricing](https://aws.amazon.com/ko/bedrock/pricing/)
+
 ## 14-2. AWS IAM
+
+```py
+
+```
 
 ## 14-4. BEDROCKCHAT
 
+```py
+
+```
+
 ## 14-5. AzureChatOpenAI
+
+```py
+
+```
 
 # 15. CrewAI
 
