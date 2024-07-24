@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(87%)
+- 진행 중...(88%)
 
 ## Open AI를 위한 요구사항
 
@@ -7345,6 +7345,8 @@ get_message(thread.id)
 ![13-7-1 Image](./images/13-7-1.png)
 
 # 14. AzureGPT & AWS BEDROCK
+
+우리는 OpenAI의 의존성을 줄이기 위해 다른 클라우드 LLM을 사용해보려 하고 AWS Bedrock(Claude)과 AzureGPT(GPT3, GPT4)의 사용법에 대해 알아보려합니다.
 
 ## 14-1. AWS BEDROCK
 
