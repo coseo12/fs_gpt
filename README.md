@@ -7369,8 +7369,45 @@ AWS_SECRET_KEY=""
 
 ## 14-4. BEDROCKCHAT
 
-```py
+간단한 예제를 작성해보겠습니다.
 
+우선 AWS 에 접근하는 구문입니다.
+
+```py
+import os
+import boto3
+
+# AWS S3 세션 생성
+sesstion = boto3.Session(
+    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key=os.getenv("AWS_SECRET"),
+)
+
+client = sesstion.client("bedrock-runtime", "us-east-1")
+```
+
+Claude는 고유의 Prompting에 대한 테크닉을 가지고 있습니다.
+
+- [ANTHROPIC - Doc](https://docs.anthropic.com/en/docs/intro-to-claude)
+
+```py
+# 14-4. BEDROCKCHAT
+from langchain.chat_models import BedrockChat
+from langchain.prompts import ChatPromptTemplate
+
+chat = BedrockChat(
+    client=client,
+    model_id="anthropic.claude-3-5-sonnet-20240620-v1:0",
+    model_kwargs={"temperature": 0.1},
+)
+
+prompt = ChatPromptTemplate.from_messages([
+    ("user", "Translate this sentence from {lang_a} to {lang_b}. {sentence}")
+])
+
+chain = prompt | chat
+
+chain.invoke({"lang_a": "en", "lang_b": "fr", "sentence": "Hello, how are you?"})
 ```
 
 ## 14-5. AzureChatOpenAI
