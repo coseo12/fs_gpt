@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(91%)
+- 진행 중...(92%)
 
 ## Open AI를 위한 요구사항
 
@@ -7450,6 +7450,10 @@ chain.invoe({
 ```
 
 # 15. CrewAI
+
+CrewAI는 AI Agent를 이용하여 시스템을 구축하는 프레임워크입니다.
+
+- [CrewAI](https://www.crewai.com/)
 
 ## 15-1. Setup
 
