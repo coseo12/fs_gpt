@@ -7571,6 +7571,8 @@ result = crew.kickoff(
 
 Agent에게 Tool을 전달하고 실행하기 위한 예제를 작성해보겠습니다.
 
+- [Tools](https://docs.crewai.com/core-concepts/Tools/#available-crewai-tools)
+
 ```py
 # 15-4. Content Farm Crew
 import os
@@ -7724,8 +7726,156 @@ result = crew.kickoff(
 
 ## 15-6. Async Youtuber Crew
 
-```py
+Context에 대해 알아보려합니다. 이는 Task가 다른 Task의 output에 의존하도록 만드는 방법입니다. 그리고 Agent가 Task를 끝낼때마다 개입하는 방법도 알아보겠습니다.
 
+예제를 작성해보겠습니다.
+
+```py
+# 15-6. Async Youtuber Crew
+import os
+from dotenv import load_dotenv
+from crewai import Crew, Agent, Task
+from crewai_tools import SerperDevTool, ScrapeWebsiteTool, YoutubeChannelSearchTool
+
+# Load the .env file
+load_dotenv()
+
+# Set Change the Name for OpenAI Model
+os.environ["OPENAI_MODEL_NAME"] = "gpt-4o"
+
+search_tool = SerperDevTool()
+scrape_tool = ScrapeWebsiteTool()
+youtube_tool = YoutubeChannelSearchTool()
+
+researcher = Agent(
+    role="Senior Researcher",  # The role of the agent
+    goal="Search the web, extract and analyze information.",  # The goal of the agent
+    backstory="""
+    You produce the highest quality research possible.
+    You use multiple sources of information and you always double check your sources to make sure they
+    are true and up to date.
+    You want to impress your coworkers with your work.
+    """,  # The backstory of the agent
+    allow_delegation=False,  # Allow the agent to delegate tasks
+    toos=[search_tool, scrape_tool, youtube_tool],  # The tools that the agent can use
+    max_iter=10,  # The maximum number of iterations that the agent can perform
+    verbose=True,  # Print the agent messages
+)
+
+marketer = Agent(
+    role="Senior Marketer",  # The role of the agent
+    goal="Come up with ideas that generate viral and useful content.",  # The goal of the agent
+    backstory="""
+    Your work at a marketing agency.
+    You are the best at coming up with ideas to make content go viral.
+    Your ideas are used for video, advertising, social media marketing, the content you produce appleals
+    to a young audience.
+    """,  # The backstory of the agent
+    verbose=True,  # Print the agent messages
+)
+
+writer = Agent(
+    role="Senior Writer",  # The role of the agent
+    goal="Write scripts for viral Youtube videos.",  # The goal of the agent
+    backstory="""
+    You write scripts for videos that keep people engaged and entertained.
+    Your content is easy and fun to watch, it is informative and it makes people want to share it with
+    their friends.
+    You are working for a very important client.
+    """,  # The backstory of the agent
+    verbose=True,  # Print the agent messages
+)
+
+brainstorm_task = Task(
+    description="Come up with 5 video ideas for a Youtube channel in the {industry} industry.", # The description of the task
+    agent=marketer,  # The agent that will perform the task
+    expected_output="""
+    Your answer MUST be a list of 5 video ideas for a Youtube video with an explanation of
+    what the angle of the video would be.
+    """, # The expected output of the task
+    human_input=True,  # The input will be provided by a human
+    output_file="ideas_task.md",  # The file where the output will be saved
+)
+
+selection_task = Task(
+    description="Select an video idea that has the highest potential of going viral.",  # The description of the task
+    agent=writer,  # The agent that will perform the task
+    expected_output="""
+    Your answer MUST include the idea that was selected as well as an explanation of
+    why that selection was made.
+    """,  # The expected output of the task
+    human_input=True,  # The input will be provided by a human
+    context=[brainstorm_task],  # The context of the task
+    output_file="selection_task.md",  # The file where the output will be saved
+)
+
+research_task = Task(
+    description="Do all the research required to write the script of a medium length video about the selected idea.",  # The description of the task
+    agent=researcher,  # The agent that will perform the task
+    expected_output="""
+    You answer must have all the information a writer would need to write a Youtube script.
+    """,  # The expected output of the task
+    async_execution=True,  # The task will be executed asynchronously
+    context=[selection_task],  # The context of the task
+    output_file="research_task.md",  # The file where the output will be saved
+)
+
+competitors_task = Task(
+    description="Search for video or articles in the {industry} industry that are similar to the video idea we are working on and suggest ways our video can be different from theirs.",  # The description of the task
+    agent=researcher,  # The agent that will perform the task
+    expected_output="""
+    Your answer must have a list of suggestions writers can follow to make sure the video is as unique and as different from competitors as possible.
+    """,  # The expected output of the task
+    async_execution=True,  # The task will be executed asynchronously
+    context=[selection_task],  # The context of the task
+    output_file="competitors_task.md",  # The file where the output will be saved
+)
+
+inspiration_task = Task(
+    description="Search for videos or articles that are similar to the video idea we are working on but from other industries.",  # The description of the task
+    agent=researcher,  # The agent that will perform the task
+    expected_output="""
+    Your answer must have a list of examples of articles and videos that have a similar angle as the video we are making but that are in different industries.
+    """,  # The expected output of the task
+    async_execution=True,  # The task will be executed asynchronously
+    context=[selection_task],  # The context of the task
+    output_file="inspiration_task.md",  # The file where the output will be saved
+)
+
+script_task = Task(
+    description="Write the script for a Youtube video for a channel in the {industry} industry.",  # The description of the task
+    agent=researcher,  # The agent that will perform the task
+    expected_output="""
+    A script for a Youtube video with a title, an introduction, at least three sections, and an outro. Make sure to also include the prompt to generate a thumbnail for the video.
+    """,  # The expected output of the task
+    context=[
+        selection_task,
+        research_task,
+        competitors_task,
+        inspiration_task,
+    ],  # The context of the task
+    output_file="script_task.md",  # The file where the output will be saved
+)
+
+crew = Crew(
+    agents=[researcher, marketer, writer],  # The agents that are part of the crew
+    tasks=[
+        brainstorm_task,
+        selection_task,
+        research_task,
+        competitors_task,
+        inspiration_task,
+        script_task,
+    ],  # The tasks that the crew will perform
+)
+
+result = crew.kickoff(
+    inputs=dict(
+        industry="Hot Sauce",
+    ),
+)
+
+result
 ```
 
 ## 15-7. Custom Tools
