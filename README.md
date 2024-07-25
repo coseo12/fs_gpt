@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(95%)
+- 진행 중...(96%)
 
 ## Open AI를 위한 요구사항
 
@@ -7569,8 +7569,72 @@ result = crew.kickoff(
 
 ## 15-4. Content Farm Crew
 
-```py
+Agent에게 Tool을 전달하고 실행하기 위한 예제를 작성해보겠습니다.
 
+```py
+# 15-4. Content Farm Crew
+import os
+from dotenv import load_dotenv
+from crewai import Crew, Agent, Task
+from crewai_tools import SerperDevTool, ScrapeWebsiteTool
+
+# Load the .env file
+load_dotenv()
+
+# Set Change the Name for OpenAI Model
+os.environ["OPENAI_MODEL_NAME"] = "gpt-4o"
+
+search_tool = SerperDevTool()
+scrape_tool = ScrapeWebsiteTool()
+
+researcher = Agent(
+    role="Senior Researcher",  # The role of the agent
+    goal="Search the web, extract and analyze information.",  # The goal of the agent
+    backstory="""
+    You produce the highest quality research possible.
+    You use multiple sources of information and you always double check your
+    sources to make sure they are true and up to date.
+    You want to impress your coworkers with your work.
+    """,  # The backstory of the agent
+    verbose=True,  # Print the agent messages
+    allow_delegation=False,  # Allow the agent to delegate tasks
+    tools=[search_tool, scrape_tool],  # The tools that the agent can use
+    max_iter=10,
+)
+
+editor = Agent(
+    role="Senior Writer/Editor",  # The role of the agent
+    goal="Write engaging blog posts.",  # The goal of the agent
+    backstory="""
+    Your write content that keeps people engaged and entertained.
+    Your content is easy to read it is informative and it makes people want to
+    share it with their friends.
+    You are working for a very important client.
+    """,  # The backstory of the agent
+    verbose=True,  # Print the agent messages
+)
+
+task = Task(
+    description="Write a blog post about {topic}.",  # The description of the task
+    agent=editor,  # The agent that will perform the task
+    expected_output="""
+    A blog post with an introduction, at least three sub-sections of content,
+    links to sources, a set of suggested hashtags for social media and a catchy title.
+    """,  # The expected output of the task
+    output_file="blog_post.md",  # The file where the output will be saved
+)
+
+crew = Crew(
+    tasks=[task],  # The tasks that the crew will perform
+    agents=[researcher, editor],  # The agents that are part of the crew
+    verbose=2,  # Print the crew messages
+)
+
+result = crew.kickoff(
+    inputs=dict(
+        topic="The future of the hydrogen industry",
+    ),
+)
 ```
 
 ## 15-5. Pydantic Outputs
