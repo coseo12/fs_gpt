@@ -7412,26 +7412,89 @@ chain.invoke({"lang_a": "en", "lang_b": "fr", "sentence": "Hello, how are you?"}
 
 ## 14-5. AzureChatOpenAI
 
-```py
+일단 아래 Azure에 회원가입을 해야합니다. 그리고 Form을 작성해야하는데 회사메일로만 가능하며 AWS에 비해 설문이 복잡합니다. 모델을 생성하고 사용 권한을 획득하는데 오래걸립니다.
 
+- [Azure OpenAI Service](https://azure.microsoft.com/ko-kr/products/ai-services/openai-service)
+
+- [Azure OpenAI Reference](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)
+
+Azure OpenAI Service를 생성하고 Key와 Endpoint를 생성합니다. 그 값을 환경변수에 적용합니다.
+
+```env
+AZURE_OPENAI_API_KEY=""
+AZURE_OPENAI_ENDPOINT=""
+```
+
+간단한 예제를 작성해보겠습니다.
+
+```py
+from langchain.chat_models import AzureChatOpenAI
+from langchain.prompts import ChatPromptTemplate
+
+chat = AzureChatOpenAI(
+    azure_deployment="gpt-35-turbo",
+    api_version="2024-06-01",
+)
+
+prompt = ChatPromptTemplate.from_messages(
+    [("user", "Translate this sentence from {lang_a} to {lang_b}. {sentence}")]
+)
+
+chain = prompt | chat
+
+chain.invoe({
+    "lang_a": "en",
+    "lang_b": "fr",
+    "sentence": "Hello, how are you?"
+})
 ```
 
 # 15. CrewAI
 
 ## 15-1. Setup
 
+```py
+
+```
+
 ## 15-2. Crews, Agents and Tasks
+
+```py
+
+```
 
 ## 15-3. Chef Crew
 
+```py
+
+```
+
 ## 15-4. Content Farm Crew
+
+```py
+
+```
 
 ## 15-5. Pydantic Outputs
 
+```py
+
+```
+
 ## 15-6. Async Youtuber Crew
+
+```py
+
+```
 
 ## 15-7. Custom Tools
 
+```py
+
+```
+
 ## 15-8. Stock Market Crew
 
-## 15-9. Conclusions
+```py
+
+```
