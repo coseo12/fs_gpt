@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(97%)
+- 진행 중...(98%)
 
 ## Open AI를 위한 요구사항
 
@@ -7880,11 +7880,148 @@ result
 
 ## 15-7. Custom Tools
 
-```py
+기업 재무를 분석하는 Crew를 만들어 보겠습니다. Crew에게 주식 이름을 알려주면 그 회의 뉴스를 찾고 주식 가격과 동향을 찾게 한 뒤 분석하기 위해 우선 Custom Tool을 먼저 만들어보겠습니다.
 
+기본적으로 Tool을 사용하는 방법은 몇가지가 있습니다.
+
+첫번째 crewai_tools 패키지를 사용하는 것입니다.
+
+두번째 LangChain에서 이미 사용중인 Tool을 import 한뒤에 사용하는 것입니다.
+
+그리고 다른 LLM을 사용하는 방법과 MangagerLLM을 사용하는 방법도 알아보겠습니다.
+
+우선 각각의 기본환경, Agent를 분리해서 작성해보겠습니다.
+
+1. 기본환경
+
+```py
+import os
+from dotenv import load_dotenv
+
+# Load the .env file
+load_dotenv()
+
+# Set Change the Name for OpenAI Model
+os.environ["OPENAI_MODEL_NAME"] = "gpt-4o"
+```
+
+2. Agents
+
+```py
+# 15-8. Stock Market Crew
+from crewai import Agent
+from crewai_tools import SerperDevTool, ScrapeWebsiteTool, tool
+import yfinance as yf
+
+
+class Tools:
+
+    @tool("One month stock price history")
+    def stock_price(ticker):
+        """
+        Useful to get a month's worth of stock price data as CSV.
+        The input of this tool should be a ticker, for example AAPL, NET, TSLA
+        """
+        stock = yf.Ticker(ticker)
+        return stock.history(period="1mo").to_csv()
+
+    @tool("Stock news URLs")
+    def stock_news(ticker):
+        """
+        Useful to get URLs of articles related to a stock.
+        The input of this tool should be a ticker, for example AAPL, NET, TSLA
+        """
+        stock = yf.Ticker(ticker)
+        return list(map(lambda x: x["link"], stock.news))
+
+    @tool("Company's income statement")
+    def income_stmt(ticker):
+        """
+        Useful to get the income statement of a stock as CSV.
+        The input of this tool should be a ticker, for example AAPL, NET, TSLA
+        """
+        stock = yf.Ticker(ticker)
+        return stock.income_stmt.to_csv()
+
+    @tool("Balance sheet")
+    def balance_sheet(ticker):
+        """
+        Useful to get the balance sheet of a stock as CSV.
+        The input of this tool should be a ticker, for example AAPL, NET, TSLA
+        """
+        stock = yf.Ticker(ticker)
+        return stock.balance_sheet.to_csv()
+
+    @tool("Get insider transactions")
+    def insider_transactions(ticker):
+        """
+        Useful to get the insider transactions of a stock as CSV.
+        The input of this tool should be a ticker, for example AAPL, NET, TSLA
+        """
+        stock = yf.Ticker(ticker)
+        return stock.insider_transactions.to_csv()
+
+
+class Agents:
+
+    def technical_analysis(self):
+        return Agent(
+            role="Technical Analyst",
+            goal="Analyze the movements of a stock and provides insights on trends, entry points, resistance and support levels.",
+            backstory="""
+            An expert in technical analysis, you're known for your ability to predict stock movements and trends based on historical data.
+            You provide valuable insights to your customers.
+            """,
+            verbose=True,
+            tools=[
+                  Tools.stock_price,
+            ],
+        )
+
+    def researcher(self):
+        return Agent(
+            role="Researcher",
+            goal="Gathers, interprets and summarizes vasts amounts of data to provide a comprehensive overview of the sentiment and news surrounding a stock.",
+            backstory="""
+            Your're skilled in gathering and interpreting data from various sources to give a complete picture of a stock's sentiment and news.
+            You read each data source carefuly and extract the most important information.
+            Your insights are crucial for making informed investment decisions.
+            """,
+            verbose=True,
+            tools=[Tools.stock_news, SerperDevTool(), ScrapeWebsiteTool()],
+        )
+
+    def financial_analysis(self):
+        return Agent(
+                role="Financial Analyst",
+                goal="Uses financial statements, insider trading data, and other financial metrics to evaluate a stock's financial health and performance.",
+                backstory="""
+                You're a very experienced investment advisor who uses a combination of technical and fundamental analysis to provide strategic investment advice to your clients.
+                You look at a company's financial health, market sentiment, and qualitative data to make informed recommendations.
+                """,
+                verbose=True,
+                tools=[
+                    Tools.balance_sheet,
+                    Tools.income_stmt,
+                    Tools.insider_transactions,
+                ],
+            )
+
+    def hedge_fund_manager(self):
+        return Agent(
+                role="Hedge Fund Manager",
+                goal="Manages a portfolio of stocks and makes strategic investment decisions to maximize returns using insights from financial analysts, technical analysts, and researchers.",
+                backstory="""
+                You're a seasoned hedge fund manager with a proven track record of making profitable investment decisions.
+                You're known for your ability to manage risk and maximize returns for your clients.
+                """,
+                verbose=True,
+            )
 ```
 
 ## 15-8. Stock Market Crew
+
+15-7 예제에 이어서 진행하겠습니다.
 
 ```py
 
