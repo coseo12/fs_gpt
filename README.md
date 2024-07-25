@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(93%)
+- 진행 중...(94%)
 
 ## Open AI를 위한 요구사항
 
@@ -7472,9 +7472,19 @@ SERPER_API_KEY="*******"
 
 ## 15-2. Crews, Agents and Tasks
 
-```py
+Crew는 일련의 작을 달성하기 위해 함께 일하는 Agent들로 이루어진 그룹입니다.
 
-```
+- [Crews](https://docs.crewai.com/core-concepts/Crews/#crew-attributes)
+
+Agent는 작업을 수행하고, 결정을 내리며, 다른 Agent들과 통신할 수 있는 자율 단위입니다.
+
+- [Agents](https://docs.crewai.com/core-concepts/Agents/)
+
+Task란 Agent가 완료시키는 특정 과제입니다.
+
+- [Tasks](https://docs.crewai.com/core-concepts/Tasks/)
+
+정리하면 Crew는 일련의 작업을 수행하는 Agent그룹이며, Agnet란 Task를 수행할 수 있는 자율 단위입니다. Task를 위임하거나 다른 Agent들과 소통도 할 수 있습니다.
 
 ## 15-3. Chef Crew
 
