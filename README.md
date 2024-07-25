@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(92%)
+- 진행 중...(93%)
 
 ## Open AI를 위한 요구사항
 
@@ -7457,8 +7457,17 @@ CrewAI는 AI Agent를 이용하여 시스템을 구축하는 프레임워크입�
 
 ## 15-1. Setup
 
-```py
+일단 관련 환경변수 및 Requirements를 설정합니다.
 
+SEPPER_API_KEY는 아래 Serper 웹페이지에서 로그인 후 발급받아야합니다.
+
+Serper란 Google의 API화입니다. Python에서 google 검색을 할 수 있게 해줍니다.
+
+- [Serper](https://serper.dev/)
+
+```env
+OPENAI_API_KEY="sk-****"
+SERPER_API_KEY="*******"
 ```
 
 ## 15-2. Crews, Agents and Tasks
