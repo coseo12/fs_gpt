@@ -1,6 +1,6 @@
 # NOTE
 
-- 진행 중...(94%)
+- 진행 중...(95%)
 
 ## Open AI를 위한 요구사항
 
@@ -7488,9 +7488,84 @@ Task란 Agent가 완료시키는 특정 과제입니다.
 
 ## 15-3. Chef Crew
 
-```py
+간단하게 2가지 Task를 수행하는 두개의 Agent로 구성된 작은 Crew를 만들어보겠습니다.
 
+```py
+# 15-3. Chef Crew
+import os
+from dotenv import load_dotenv
+from crewai import Crew, Agent, Task
+
+# Load the .env file
+load_dotenv()
+
+# Set Change the Name for OpenAI Model
+os.environ["OPENAI_MODEL_NAME"] = "gpt-4o"
+
+international_chef = Agent(
+    role="International Chef", # The role of the agent
+    goal="Create ethnic cuisine recipies that are easy to cook at home.", # The goal of the agent
+    backstory="""
+    You are an famous chef that specializes in couisine from
+    countries all around the world.
+    You know how to cook the most traditional dishes from all
+    cultures but you also know how to adapt them for people to
+    be able to cook them at home.
+    """, # The backstory of the agent
+    verbose=True, # Print the agent messages
+    allow_delegation=False, # Allow the agent to delegate tasks
+)
+
+healthy_chef = Agent(
+    role="Healthy Chef",  # The role of the agent
+    goal="Turn any recipe into a healthy vegetarian recipe that is easy to cook with home ingredients.",  # The goal of the agent
+    backstory="""
+    You are a chef specialized in healthy cooking.
+    You can take any recipe and change the ingredients to make
+    it vegetarian friendly without loosing the escense of the
+    dish and what makes it delicious.
+    """,  # The backstory of the agent
+    verbose=True,  # Print the agent messages
+    allow_delegation=False,  # Allow the agent to delegate tasks
+)
+
+normal_recipe = Task(
+    description="Come up with a {dish} that serves {people} people.",  # The description of the task
+    agent=international_chef,  # The agent that will perform the task
+    expected_output="""
+    Your answer MUST have three sections, the ingredients
+    required with their quantities, the preparation instructions and serving
+    suggestions.
+    """,  # The expected output of the task
+    output_file="normal_recipe.md",  # The file where the output will be saved
+)
+
+healthy_recipe = Task(
+    description="Replace the ingredients of a recipe to make it vegetarian without making it less delicious, adjust if needed.",  # The description of the task
+    agent=healthy_chef,  # The agent that will perform the task
+    expected_output="""
+    Your answer MUST have four sections, the ingredients
+    required with their quantities, the preparation instructions, serving
+    suggestions and an explanation of the replaced ingredients.
+    """,  # The expected output of the task
+    output_file="healthy_recipe.md",  # The file where the output will be saved
+)
+
+crew = Crew(
+    tasks=[normal_recipe, healthy_recipe], # The tasks that the crew will perform
+    agents=[international_chef, healthy_chef], # The agents that are part of the crew
+    verbose=2, # Print the crew messages
+)
+
+result = crew.kickoff(
+    inputs=dict(
+        dish="Greek dinner",
+        people="5",
+    )
+)
 ```
+
+각 Task의 결과와 2개의 파일이 생성된 것을 확인할 수 있습니다.
 
 ## 15-4. Content Farm Crew
 
