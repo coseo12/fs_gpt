@@ -1,0 +1,44 @@
+### Unity Software Inc. Latest News and Market Sentiment
+
+#### 1. Unity Software to cut 3.8% of staff in 'company reset' | Reuters
+**Source:** [Reuters](https://www.reuters.com/technology/unity-software-cut-38-staff-company-reset-2023-11-28/)
+**Date:** November 28, 2023
+
+Videogame software provider Unity Software will eliminate 265 jobs or 3.8% of its global workforce and end an agreement with a digital video effects company founded by the "Lord of the Rings" director as part of a "reset," the company said on Tuesday. The move follows a tumultuous period for the San Francisco-based company, which makes a software toolkit used by many videogame developers including the maker of the popular "Pokemon Go" mobile game. In September, the company tried to impose a new “runtime fee” pricing policy, which charged new fees to its game developers if certain revenue and install thresholds were met. Following a developer revolt and a steep dropoff in share price, the company revamped the new fees. In October, Unity CEO John Riccitiello retired, and the company appointed former IBM president Jim Whitehurst as interim CEO and president and Sequoia Capital partner Roelof Botha as board chairman. Tuesday's announcement includes termination of the professional services piece of an agreement Unity struck with movie director Peter Jackson's visual effects company Weta FX in 2021 after Unity purchased the technology and engineering division of Weta FX. As a result, 265 employees whose jobs are related to the agreement will be laid off, the company said. The company has said its total workforce was around 7,000. In addition, Unity will shut down offices in 14 locations such as Berlin and Singapore, pending employee consultation in some countries, and significantly reduce its office footprint for the remaining offices, including in San Francisco and Bellevue, Washington. Unity will no longer mandate that employees work from offices three a days a week and will reduce "full in-office services" to three days a week in most locations, the company said. More changes are in store to "refocus" Unity's business, Whitehurst told Reuters. "While no additions have been finalized, it's clear that we will reduce the number of things we are doing overall," he said.
+
+#### 2. Exclusive: Unity Software to cut 25% of staff in ‘company reset’ continuation | Reuters
+**Source:** [Reuters](https://www.reuters.com/technology/unity-software-cutting-25-staff-company-reset-continuation-2024-01-08/)
+**Date:** January 8, 2024
+
+Videogame software provider Unity Software will target laying off approximately 25% of its workforce, or 1,800 jobs, the company said in a regulatory filing and internal company memo on Monday. After the announcement, Unity shares were up nearly 5% in after-hours trading. This is the San Francisco-based company’s largest layoff ever, with completion expected by the end of March, the company said. While Unity is not widely recognized outside the gaming industry, over 1.1 million game creators rely on its software toolkit each month, including the maker of the popular “Pokemon Go,” “Beat Saber” and “Hearthstone” games. Monday’s deep job cuts will affect all teams, regions and areas of the business, the company told Reuters. The layoffs come shortly after interim CEO Jim Whitehurst announced a “company reset” in November. “We are … reducing the number of things we are doing in order to focus on our core business and drive our long-term success and profitability,” Whitehurst wrote in the memo to all Unity employees on Monday. While Whitehurst provided no specifics on structural changes to come, a company spokesperson confirmed there will be additional changes coming. This is the fourth round of layoffs the company has conducted since July 2022. The layoffs and company reset follow a tumultuous period for Unity. In September last year, the company tried to impose a new “runtime fee” pricing policy, which charged new fees to its game developers if certain revenue and install thresholds were met. Following a developer revolt and a steep dropoff in share price, the company revamped the new fees. Following the controversy, then-Unity CEO John Riccitiello retired, and the company appointed former IBM president Whitehurst as interim CEO and president and Sequoia Capital partner Roelof Botha as board chairman. In November, Whitehurst announced the first part of the company reset, which included terminating an agreement with a visual effects company founded by the “Lord of the Rings” director, closing offices and no longer mandating employees work from offices. Monday’s layoff is the second part of the company reset. Unity was founded nearly two decades ago by three Danish engineers, and gained popularity among game developers for its “game engine” that makes it simpler to develop and publish games across different platforms, such as via mobile or virtual reality. It is also used in other industries like film and automotive for 3D visualization and virtual reality. After its IPO in 2020, Unity's stock reached a peak of around $200 in November 2021, but subsequently fell below $30 last year. Its shares have jumped nearly 40% since Whitehurst announced the company reset.
+
+#### 3. Unity Software Inc. (U) Latest Press Releases & Corporate News
+**Source:** [Yahoo Finance](https://finance.yahoo.com/quote/U/press-releases/)
+**Date:** Various
+
+- **July 09, 2024:** Unity announced today it will release second quarter 2024 financial results after the market close on August 8, 2024, with a webcast to follow at 2 p.m. PT/5 p.m. ET.
+- **June 17, 2024:** Unity showcased customer experiences driving 3D innovation across industries at the Augmented World Expo (AWE).
+- **May 20, 2024:** Unity announced the 2024 Unity for Humanity grant winners and honorees, with bespoke awards from a pool of $500,000USD.
+- **May 01, 2024:** Unity appointed Matthew Bromberg as new CEO, effective May 15, 2024.
+- **April 25, 2024:** TheXPlace and Unity partnered to launch the Summer Game Jam.
+- **April 08, 2024:** Unity announced it will release first quarter 2024 financial results on May 9, 2024.
+- **March 18, 2024:** Unity released the 2024 Unity Gaming Report at GDC, highlighting game developers' resilience amidst economic challenges.
+- **March 07, 2024:** Unity partnered with Mazda to develop a next-generation in-cabin car experience.
+- **February 22, 2024:** Capgemini to acquire Unity's Digital Twin Professional Services arm.
+- **January 31, 2024:** Unity announced support for Apple Vision Pro is now available.
+- **January 09, 2024:** Unity announced it will release fourth quarter and Fiscal Year 2023 financial results on February 26, 2024.
+- **November 16, 2023:** Unity unveiled new AI innovations and platform updates at its annual developer conference, Unite.
+- **October 09, 2023:** Unity announced leadership transition with John Riccitiello retiring, and James M. Whitehurst appointed as Interim CEO.
+
+---
+
+### Analysis and Market Sentiment
+The recent news surrounding Unity Software Inc. indicates a challenging period for the company marked by significant layoffs, leadership changes, and strategic shifts. The announcements of job cuts, particularly the large layoffs in January 2024, suggest a company in the midst of a substantial restructuring. The layoffs are part of a broader "company reset" aimed at refocusing on Unity's core business and long-term profitability.
+
+The market sentiment appears mixed. Despite the negative implications of the layoffs, the market has responded positively to the restructuring efforts. For instance, Unity's shares rose approximately 5% in after-hours trading following the announcement of the 25% workforce reduction. This indicates investor confidence in the company's new direction under interim CEO Jim Whitehurst.
+
+Unity's strategic partnerships and innovations, such as collaborations with Mazda and Apple Vision Pro support, along with new AI platforms, highlight the company's efforts to diversify and innovate beyond its core gaming engine business. These moves could potentially open new revenue streams and stabilize the company's performance in the long term.
+
+However, the company's past missteps, such as the controversial runtime fee policy and the subsequent backlash, have likely contributed to volatility in its stock performance. The departure of former CEO John Riccitiello and the appointment of new leadership suggest a period of transition and uncertainty.
+
+Overall, while Unity is facing significant internal challenges and restructuring, there is a cautious optimism in the market regarding the company's ability to realign its focus and drive future growth. The upcoming financial results and the successful execution of the "company reset" will be critical in determining Unity's performance and market sentiment moving forward.
